@@ -5,12 +5,14 @@ include comctl32.inc
 include masm32.inc
 include shell32.inc
 include gdi32.inc
+include msvcrt.inc
 
 includelib user32.lib
 includelib kernel32.lib
 includelib comctl32.lib
 includelib masm32.lib
 includelib gdi32.lib
+includelib msvcrt.lib
 
 MAX_LEN		EQU	100
 REC_LEN		EQU	100

@@ -9,7 +9,10 @@ include sy.inc
 ; 位图文件名
 syTitleFileName byte "title.bmp", 0h
 syBoxFileName byte "box.bmp", 0h
-syPlayerFileName byte "player.bmp", 0h
+syPlayerUpFileName byte "player-up.bmp", 0h
+syPlayerRightFileName byte "player-right.bmp", 0h
+syPlayerDownFileName byte "player-down.bmp", 0h
+syPlayerLeftFileName byte "player-left.bmp", 0h
 syWallFileName byte "wall.bmp", 0h
 syEmptyFileName byte "empty.bmp", 0h
 syTargetFileName byte "target.bmp", 0h
@@ -18,11 +21,19 @@ syBoxTargetFileName byte "box-target.bmp", 0h
 ; 位图
 syTitleBitmap HBITMAP ?
 syBoxBitmap HBITMAP ?
-syPlayerBitmap HBITMAP ?
+syPlayerUpBitmap HBITMAP ?
+syPlayerRightBitmap HBITMAP ?
+syPlayerDownBitmap HBITMAP ?
+syPlayerLeftBitmap HBITMAP ?
 syWallBitmap HBITMAP ?
 syEmptyBitmap HBITMAP ?
 syTargetBitmap HBITMAP ?
 syBoxTargetBitmap HBITMAP ?
+
+; 游戏是否开始
+syGameStarted byte 0
+; 玩家朝向
+syPlayerFace dword 0
 
 ; 主窗体id
 syMainWinId HWND ?
@@ -31,27 +42,38 @@ syMainWinId HWND ?
 syMainWinDC HDC ?
 syMainBitmapDC HDC ?
 
-; 游戏是否开始
-syGameStarted byte 0
-
 ; 地图区域x
 SY_MAPX equ 144
 ; 地图区域y
 SY_MAPY equ 192
 ; 格子尺寸
 SY_GRID_SIZE equ 48
+; 地图尺寸
 SY_MAP_SIZE equ 480
 
-; 地图类型x
+; 地图类型
+; 无
 SY_GRID_TYPE_NOTHING equ 0
+; 墙
 SY_GRID_TYPE_WALL equ 1
+; 空地
 SY_GRID_TYPE_EMPTY equ 2
+; 玩家
 SY_GRID_TYPE_PLAYER equ 3
+; 箱子不在目标点
 SY_GRID_TYPE_BOX equ 4
+; 目标点
 SY_GRID_TYPE_TARGET equ 5
+; 箱子在目标点
 SY_GRID_TYPE_BOX_TARGET equ 6
-
-fmt byte "left: %d", 0ah, 0h
+; 朝上的玩家
+SY_GRID_TYPE_PLAYER_UP equ 7
+; 朝右的玩家
+SY_GRID_TYPE_PLAYER_RIGHT equ 8
+; 朝下的玩家
+SY_GRID_TYPE_PLAYER_DOWN equ 9
+; 朝左的玩家
+SY_GRID_TYPE_PLAYER_LEFT equ 10
 
 .code
 
@@ -91,7 +113,12 @@ syGetGridType proc u32Index: dword
 
 	mov eax, CurrentMapText[ebx * 4]
 
-	.if eax == SY_GRID_TYPE_BOX
+	.if eax == SY_GRID_TYPE_PLAYER
+		; 玩家
+		mov eax, SY_GRID_TYPE_PLAYER_UP
+		add eax, syPlayerFace
+	.elseif eax == SY_GRID_TYPE_BOX
+		; 箱子
 		mov eax, OriginMapText[ebx * 4]
 		.if eax == SY_GRID_TYPE_TARGET
 			; 在目标点
@@ -106,6 +133,13 @@ syGetGridType proc u32Index: dword
 
 	ret
 syGetGridType endp
+
+sySetPlayerFace proc u32Face: dword
+	mov eax, u32Face
+	mov syPlayerFace, eax
+
+	ret
+sySetPlayerFace endp
 
 syUpdateMap proc
 	; 无效化地图区域
@@ -198,8 +232,14 @@ syDrawMap proc devc: HDC
 				invoke syDrawImage, syWallBitmap, nextX, nextY, SY_GRID_SIZE, SY_GRID_SIZE
 			.elseif eax == SY_GRID_TYPE_EMPTY
 				invoke syDrawImage, syEmptyBitmap, nextX, nextY, SY_GRID_SIZE, SY_GRID_SIZE
-			.elseif eax == SY_GRID_TYPE_PLAYER
-				invoke syDrawImage, syPlayerBitmap, nextX, nextY, SY_GRID_SIZE, SY_GRID_SIZE
+			.elseif eax == SY_GRID_TYPE_PLAYER_UP
+				invoke syDrawImage, syPlayerUpBitmap, nextX, nextY, SY_GRID_SIZE, SY_GRID_SIZE
+			.elseif eax == SY_GRID_TYPE_PLAYER_RIGHT
+				invoke syDrawImage, syPlayerRightBitmap, nextX, nextY, SY_GRID_SIZE, SY_GRID_SIZE
+			.elseif eax == SY_GRID_TYPE_PLAYER_DOWN
+				invoke syDrawImage, syPlayerDownBitmap, nextX, nextY, SY_GRID_SIZE, SY_GRID_SIZE
+			.elseif eax == SY_GRID_TYPE_PLAYER_LEFT
+				invoke syDrawImage, syPlayerLeftBitmap, nextX, nextY, SY_GRID_SIZE, SY_GRID_SIZE
 			.elseif eax == SY_GRID_TYPE_BOX
 				invoke syDrawImage, syBoxBitmap, nextX, nextY, SY_GRID_SIZE, SY_GRID_SIZE
 			.elseif eax == SY_GRID_TYPE_TARGET
@@ -241,8 +281,14 @@ syLoadImage proc
 
 		invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, SY_GRID_SIZE, SY_GRID_SIZE, LR_LOADFROMFILE
 		mov syBoxBitmap, eax
-		invoke LoadImage, NULL, offset syPlayerFileName, IMAGE_BITMAP, SY_GRID_SIZE, SY_GRID_SIZE, LR_LOADFROMFILE
-		mov syPlayerBitmap, eax
+		invoke LoadImage, NULL, offset syPlayerUpFileName, IMAGE_BITMAP, SY_GRID_SIZE, SY_GRID_SIZE, LR_LOADFROMFILE
+		mov syPlayerUpBitmap, eax
+		invoke LoadImage, NULL, offset syPlayerRightFileName, IMAGE_BITMAP, SY_GRID_SIZE, SY_GRID_SIZE, LR_LOADFROMFILE
+		mov syPlayerRightBitmap, eax
+		invoke LoadImage, NULL, offset syPlayerDownFileName, IMAGE_BITMAP, SY_GRID_SIZE, SY_GRID_SIZE, LR_LOADFROMFILE
+		mov syPlayerDownBitmap, eax
+		invoke LoadImage, NULL, offset syPlayerLeftFileName, IMAGE_BITMAP, SY_GRID_SIZE, SY_GRID_SIZE, LR_LOADFROMFILE
+		mov syPlayerLeftBitmap, eax
 		invoke LoadImage, NULL, offset syWallFileName, IMAGE_BITMAP, SY_GRID_SIZE, SY_GRID_SIZE, LR_LOADFROMFILE
 		mov syWallBitmap, eax
 		invoke LoadImage, NULL, offset syEmptyFileName, IMAGE_BITMAP, SY_GRID_SIZE, SY_GRID_SIZE, LR_LOADFROMFILE
@@ -284,7 +330,10 @@ syEndDraw proc
 		; 删除格子位图
 
 		invoke DeleteObject, syBoxBitmap
-		invoke DeleteObject, syPlayerBitmap
+		invoke DeleteObject, syPlayerUpBitmap
+		invoke DeleteObject, syPlayerRightBitmap
+		invoke DeleteObject, syPlayerDownBitmap
+		invoke DeleteObject, syPlayerLeftBitmap
 		invoke DeleteObject, syWallBitmap
 		invoke DeleteObject, syEmptyBitmap
 		invoke DeleteObject, syTargetBitmap
