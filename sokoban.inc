@@ -29,11 +29,11 @@ StageBack   EQU 00a0adbbh
 TextColor   EQU 00000000h
 ButtonColor EQU 00ffffffh
 
-WinMain             PROTO :DWORD, :DWORD, :DWORD, :DWORD	; ´°¿ÚÖ÷³ÌĞò
-Calculate           PROTO :DWORD, :DWORD, :DWORD, :DWORD	; ÏûÏ¢´¦Àí³ÌĞò
-InitRec             PROTO :DWORD							; ³õÊ¼»¯·½¸ñ¾ØÕó
-InitBack            PROTO       							; ³õÊ¼»¯ÑÕÉ«Êı×é
-InitBrush           PROTO       							; ³õÊ¼»¯±ÊË¢Êı×é
+WinMain             PROTO :DWORD, :DWORD, :DWORD, :DWORD	; çª—å£ä¸»ç¨‹åº
+Calculate           PROTO :DWORD, :DWORD, :DWORD, :DWORD	; æ¶ˆæ¯å¤„ç†ç¨‹åº
+InitRec             PROTO :DWORD							; åˆå§‹åŒ–æ–¹æ ¼çŸ©é˜µ
+InitBack            PROTO       							; åˆå§‹åŒ–é¢œè‰²æ•°ç»„
+InitBrush           PROTO       							; åˆå§‹åŒ–ç¬”åˆ·æ•°ç»„
 RefreshRec			PROTO
 MoveUp				PROTO
 MoveDown			PROTO
@@ -43,6 +43,7 @@ CreateMap1			PROTO
 CreateMap2			PROTO
 CreateMap3			PROTO
 CreateMap4			PROTO
+CreateMap5			PROTO
 ShowNumber			PROTO
 
 IDD_DIALOG1            EQU         102
