@@ -28,6 +28,8 @@ syStartGame proto
 syResetGame proto
 ; 获取游戏是否开始
 syIsGameStarted proto
+; 设置角色脸朝向
+sySetPlayerFace proto u32Face: dword
 ; 刷新全图
 syUpdateMap proto
 ; 刷新格子
@@ -54,6 +56,10 @@ syDrawImage proto bitmap: HBITMAP, i32X: sword, i32Y: sword, u32Width: dword, u3
 ; 变量声明
 
 REC_LEN equ 100
+SY_FACE_UP equ 0
+SY_FACE_RIGHT equ 1
+SY_FACE_DOWN equ 2
+SY_FACE_LEFT equ 3
 
 externdef OriginMapText: dword
 externdef CurrentMapText: dword
