@@ -1,6 +1,6 @@
 # 🎮Sokoban 
 【汇编项目】BIT大三下学期课程项目——推箱子  
-爷青回！！！
+爷青回！！！  
 [README.md in English](https://github.com/TommyGong08/Sokoban/blob/main/English.md)
  
 ## 配置汇编环境 
