@@ -9,92 +9,100 @@ include sy.inc
 include sokoban.inc
 .data
 
-hInstance		dd ? ; Ö÷³ÌĞò¾ä±ú
-hGuide			dd ? ; Òıµ¼ÎÄ×Ö¾ä±ú
-hLevel			dd ? ; ¹Ø¿¨¾ä±ú
-hLevelText      dd ? ; ¹Ø¿¨ÎÄ±¾¾ä±ú
-hStep			dd ? ; ²½Êı¾ä±ú
-hStepText		dd ? ; ²½ÊıÎÄ±¾¾ä±ú
-hMenu			dd ? ; ²Ëµ¥¾ä±ú
+hInstance		dd ? ; ä¸»ç¨‹åºå¥æŸ„
+hGuide			dd ? ; å¼•å¯¼æ–‡å­—å¥æŸ„
+hLevel			dd ? ; å…³å¡å¥æŸ„
+hLevelText      dd ? ; å…³å¡æ–‡æœ¬å¥æŸ„
+hStep			dd ? ; æ­¥æ•°å¥æŸ„
+hStepText		dd ? ; æ­¥æ•°æ–‡æœ¬å¥æŸ„
+hMenu			dd ? ; èœå•å¥æŸ„
 
-hIcon			dd ? ; Í¼±ê¾ä±ú
-hAcce			dd ? ; ÈÈ¼ü¾ä±ú
-hStage			dd ? ; ¾ØĞÎÍâ²¿¾ä±ú
-hDialogBrush    dd ? ; ¶Ô»°¿ò±³¾°±ÊË¢
-hStageBrush     dd ? ; ¾ØĞÎÍâ²¿±³¾°±ÊË¢
+hIcon			dd ? ; å›¾æ ‡å¥æŸ„
+hAcce			dd ? ; çƒ­é”®å¥æŸ„
+hStage			dd ? ; çŸ©å½¢å¤–éƒ¨å¥æŸ„
+hDialogBrush    dd ? ; å¯¹è¯æ¡†èƒŒæ™¯ç¬”åˆ·
+hStageBrush     dd ? ; çŸ©å½¢å¤–éƒ¨èƒŒæ™¯ç¬”åˆ·
 
 iScore          dd		0; 0
 cScore          db		MAX_LEN dup(0); 0
-currentLevel	dd		0;¼ÇÂ¼µ±Ç°¹Ø¿¨
+currentLevel	dd		0;è®°å½•å½“å‰å…³å¡
+cLevel			dd		5 dup(0)
 currentStep		dd		0
-CurrPosition	dd		0; ¼ÇÂ¼ÈËµÄÎ»ÖÃ
+cStep			dd		5 dup(0)
+CurrPosition	dd		0; è®°å½•äººçš„ä½ç½®
 temp_for_initrec	dd	1018
 temp_ebx		dd		0
 temp_ecx		dd		0
-OriginMapText	dd		MAX_LEN dup(0); Ô­Ê¼µØÍ¼¾ØÕó
-CurrentMapText  dd      MAX_LEN dup(0); µ±Ç°µØÍ¼¾ØÕó
+OriginMapText	dd		MAX_LEN dup(0); åŸå§‹åœ°å›¾çŸ©é˜µ
+CurrentMapText  dd      MAX_LEN dup(0); å½“å‰åœ°å›¾çŸ©é˜µ
 
-ProgramName		db		"Game", 0; ³ÌĞòÃû³Æ
-GameName		db		"sokoban", 0; ³ÌĞòÃû³Æ
-Author			db		"MonsterGe", 0; ×÷Õß
-cGuide          db		"Sokoban!", 0; Òıµ¼ĞÅÏ¢
-cWin            db		"You win! Please click the button to restart", 0; ³É¹¦ĞÅÏ¢
-cLose           db		"You lose! Please click the button to restart", 0; Ê§°ÜĞÅÏ¢
+ProgramName		db		"Game", 0; ç¨‹åºåç§°
+GameName		db		"sokoban", 0; ç¨‹åºåç§°
+Author			db		"MonsterGe", 0; ä½œè€…
+cGuide          db		"Sokoban!", 0; å¼•å¯¼ä¿¡æ¯
+cWin            db		"You win! Please click the button to restart", 0; æˆåŠŸä¿¡æ¯
+cLose           db		"You lose! Please click the button to restart", 0; å¤±è´¥ä¿¡æ¯
 szFormat	    db	    "%d ", 0
-isWin			db		0; ÅĞ¶ÏÊÇ·ñ³É¹¦
-isLose			db		0; ÅĞ¶ÏÊÇ·ñÊ§°Ü
+isWin			db		0; åˆ¤æ–­æ˜¯å¦æˆåŠŸ
+isLose			db		0; åˆ¤æ–­æ˜¯å¦å¤±è´¥
 
 iprintf			db		"%d", 0ah, 0
+
+cLevel1			db		"1", 0
+cLevel2			db		"2", 0
+cLevel3			db		"3", 0
+cLevel4			db		"4", 0
+cLevel5			db		"5", 0
 .code
 
 WinMain PROC hInst : dword, hPrevInst : dword, cmdLine : dword, cmdShow : dword
-	local wc : WNDCLASSEX; ´°¿ÚÀà
-	local msg : MSG; ÏûÏ¢
-	local hWnd : HWND; ¶Ô»°¿ò¾ä±ú
+	local wc : WNDCLASSEX; çª—å£ç±»
+	local msg : MSG; æ¶ˆæ¯
+	local hWnd : HWND; å¯¹è¯æ¡†å¥æŸ„
 
 	invoke RtlZeroMemory, addr wc, sizeof WNDCLASSEX
 
-	mov wc.cbSize, sizeof WNDCLASSEX; ´°¿ÚÀàµÄ´óĞ¡
-	mov wc.style, CS_HREDRAW or CS_VREDRAW; ´°¿Ú·ç¸ñ
-	mov wc.lpfnWndProc, offset Calculate; ´°¿ÚÏûÏ¢´¦Àíº¯ÊıµØÖ·
-	mov wc.cbClsExtra, 0; ÔÚ´°¿ÚÀà½á¹¹ÌåºóµÄ¸½¼Ó×Ö½ÚÊı£¬¹²ÏíÄÚ´æ
-	mov wc.cbWndExtra, DLGWINDOWEXTRA; ÔÚ´°¿ÚÊµÀıºóµÄ¸½¼Ó×Ö½ÚÊı
+	mov wc.cbSize, sizeof WNDCLASSEX; çª—å£ç±»çš„å¤§å°
+	mov wc.style, CS_HREDRAW or CS_VREDRAW; çª—å£é£æ ¼
+	mov wc.lpfnWndProc, offset Calculate; çª—å£æ¶ˆæ¯å¤„ç†å‡½æ•°åœ°å€
+	mov wc.cbClsExtra, 0; åœ¨çª—å£ç±»ç»“æ„ä½“åçš„é™„åŠ å­—èŠ‚æ•°ï¼Œå…±äº«å†…å­˜
+	mov wc.cbWndExtra, DLGWINDOWEXTRA; åœ¨çª—å£å®ä¾‹åçš„é™„åŠ å­—èŠ‚æ•°
 
 	push hInst
-	pop wc.hInstance; ´°¿ÚËùÊô³ÌĞò¾ä±ú
+	pop wc.hInstance; çª—å£æ‰€å±ç¨‹åºå¥æŸ„
 
-	mov wc.hbrBackground, COLOR_WINDOW; ±³¾°»­Ë¢¾ä±ú
-	mov wc.lpszMenuName, NULL; ²Ëµ¥Ãû³ÆÖ¸Õë
-	mov wc.lpszClassName, offset ProgramName; ´°¿ÚÀàÀàÃû³Æ
-	; ¼ÓÔØÍ¼±ê¾ä±ú
+	mov wc.hbrBackground, COLOR_WINDOW; èƒŒæ™¯ç”»åˆ·å¥æŸ„
+	mov wc.lpszMenuName, NULL; èœå•åç§°æŒ‡é’ˆ
+	mov wc.lpszClassName, offset ProgramName; çª—å£ç±»ç±»åç§°
+	; åŠ è½½å›¾æ ‡å¥æŸ„
 	; invoke LoadIcon, hInst, IDI_ICON
 	; mov wc.hIcon, eax
 
-	; ¼ÓÔØ¹â±ê¾ä±ú
+	; åŠ è½½å…‰æ ‡å¥æŸ„
 	invoke LoadCursor, NULL, IDC_ARROW
 	mov wc.hCursor, eax
 
-	mov wc.hIconSm, 0; ´°¿ÚĞ¡Í¼±ê¾ä±ú
+	mov wc.hIconSm, 0; çª—å£å°å›¾æ ‡å¥æŸ„
 
-	invoke RegisterClassEx, addr wc; ×¢²á´°¿ÚÀà
-	; ¼ÓÔØ¶Ô»°¿ò´°¿Ú
+	invoke RegisterClassEx, addr wc; æ³¨å†Œçª—å£ç±»
+	; åŠ è½½å¯¹è¯æ¡†çª—å£
 	invoke CreateDialogParam, hInst, IDD_DIALOG1, 0, offset Calculate, 0
 	mov hWnd, eax
 	
-	; ÉèÖÃÖ÷´°Ìåid
+	; è®¾ç½®ä¸»çª—ä½“id
 	invoke sySetMainWinId, eax
 
-	invoke ShowWindow, hWnd, cmdShow; ÏÔÊ¾´°¿Ú
-	invoke UpdateWindow, hWnd; ¸üĞÂ´°¿Ú
+	invoke ShowWindow, hWnd, cmdShow; æ˜¾ç¤ºçª—å£
+	invoke UpdateWindow, hWnd; æ›´æ–°çª—å£
 
-	; ÏûÏ¢Ñ­»·
+	; æ¶ˆæ¯å¾ªç¯
 	.while TRUE
-		invoke GetMessage, addr msg, NULL, 0, 0; »ñÈ¡ÏûÏ¢
+		invoke GetMessage, addr msg, NULL, 0, 0; è·å–æ¶ˆæ¯
 		.break .if eax == 0
-		invoke TranslateAccelerator, hWnd, hAcce, addr msg; ×ª»»¿ì½İ¼üÏûÏ¢
+		invoke TranslateAccelerator, hWnd, hAcce, addr msg; è½¬æ¢å¿«æ·é”®æ¶ˆæ¯
 		.if eax == 0
-			invoke TranslateMessage, addr msg; ×ª»»¼üÅÌÏûÏ¢
-			invoke DispatchMessage, addr msg; ·Ö·¢ÏûÏ¢
+			invoke TranslateMessage, addr msg; è½¬æ¢é”®ç›˜æ¶ˆæ¯
+			invoke DispatchMessage, addr msg; åˆ†å‘æ¶ˆæ¯
 		.endif
 	.endw
 
@@ -103,31 +111,28 @@ WinMain PROC hInst : dword, hPrevInst : dword, cmdLine : dword, cmdShow : dword
 WinMain endp
 
 
-; ÅĞ¶ÏÊäÓ®
+; åˆ¤æ–­è¾“èµ¢
 JudgeWin proc
-	; ÈôÍ¼ÖĞ²»³öÏÖÊôĞÔ5£¬Ö¤Ã÷Ïä×ÓÈ«²¿µ½Î»
+	; è‹¥å›¾ä¸­ä¸å‡ºç°å±æ€§5ï¼Œè¯æ˜ç®±å­å…¨éƒ¨åˆ°ä½
 	xor eax, eax
-	xor ebx, ebx; ebx¼ÇÂ¼Í¼ÖĞÏä×Ó´æ·ÅµãÊıÁ¿
+	xor ebx, ebx; ebxè®°å½•å›¾ä¸­ç®±å­å­˜æ”¾ç‚¹æ•°é‡
 	mov eax, 0
 	.while eax < MAX_LEN
 		.if OriginMapText[eax * 4] == 5 
-			;Èç¹ûOriginÊÇ5µÄÎ»ÖÃ Current¶¼ÊÇ4¾ÍĞĞÁË
+			;å¦‚æœOriginæ˜¯5çš„ä½ç½® Currentéƒ½æ˜¯4å°±è¡Œäº†
 			.if CurrentMapText[eax * 4] == 4
 			jmp L1
-			.else ;²»µÈÓÚ4,ËµÃ÷Ã»³É¹¦
+			.else ;ä¸ç­‰äº4,è¯´æ˜æ²¡æˆåŠŸ
 				jmp NotWin
 			.endif 
 		.endif
 L1:		inc eax
 	.endw
-	mov isWin, 1 ;¸Ã¾Ö»ñÊ¤
-	inc currentLevel ;¹Ø¿¨Êı+1
-	invoke crt_printf, addr szFormat, isWin
+	mov isWin, 1 ;è¯¥å±€è·èƒœ
+	inc currentLevel ;å…³å¡æ•°+1
 	ret
 NotWin:		
 	mov isWin, 0 
-	invoke crt_printf, addr szFormat, isWin
-
 	ret
 JudgeWin endp
 
@@ -136,148 +141,143 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 	local ps : PAINTSTRUCT
 
 	.if uMsg == WM_INITDIALOG
-		; »ñÈ¡²Ëµ¥µÄ¾ä±ú²¢ÏÔÊ¾²Ëµ¥
+		; è·å–èœå•çš„å¥æŸ„å¹¶æ˜¾ç¤ºèœå•
 		invoke LoadMenu, hInstance, IDR_MENU1
 		mov hMenu, eax
 		invoke SetMenu, hWnd, hMenu
 
-		; »ñÈ¡¿ì½İ¼üµÄ¾ä±ú²¢ÏÔÊ¾²Ëµ¥
+		; è·å–å¿«æ·é”®çš„å¥æŸ„å¹¶æ˜¾ç¤ºèœå•
 		invoke LoadAccelerators, hInstance, IDR_ACCELERATOR2
 		mov hAcce, eax
 
-		; ³õÊ¼»¯Êı×éºÍ¾ØÕó
+		; åˆå§‹åŒ–æ•°ç»„å’ŒçŸ©é˜µ
 		invoke InitRec, hWnd
 		invoke InitBrush
 
 	.elseif uMsg == WM_PAINT
-		; »æÖÆ¶Ô»°¿ò±³¾°
+		; ç»˜åˆ¶å¯¹è¯æ¡†èƒŒæ™¯
 		invoke BeginPaint, hWnd, addr ps
 		mov hdc, eax
 		invoke FillRect, hdc, addr ps.rcPaint, hDialogBrush
 
-		; »æÖÆµØÍ¼
+		; ç»˜åˆ¶åœ°å›¾
 		invoke syDrawMap, hdc
 
 		invoke EndPaint, hWnd, addr ps
 
 	.elseif uMsg == WM_COMMAND
 		mov eax, wParam
-		movzx eax, ax; »ñµÃÃüÁî
-		; ¿ªÊ¼ĞÂÓÎÏ·£¬´ËÊ±ĞèÒª¼ÓÔØµ±Ç°¹Ø¿¨¶ÔÓ¦µÄµØÍ¼
+		movzx eax, ax; è·å¾—å‘½ä»¤
+		; å¼€å§‹æ–°æ¸¸æˆï¼Œæ­¤æ—¶éœ€è¦åŠ è½½å½“å‰å…³å¡å¯¹åº”çš„åœ°å›¾
 		.if eax == IDC_NEW || eax == ID_NEW
-			; µ÷ÓÃ¼ÓÔØµØÍ¼µÄº¯Êı
+			; è°ƒç”¨åŠ è½½åœ°å›¾çš„å‡½æ•°
 			.if currentLevel == 0
 				invoke CreateMap1
-				; invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset 1
+				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel1
 			.elseif currentLevel == 1
-			Map2:	
+			Map2:
 				invoke CreateMap2
-				; invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset 2
+				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel2
 			 .elseif currentLevel == 2
 			Map3:
 				invoke CreateMap3
-				; invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset 3
-				; .elseif currentLevel == 3
+				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel3
+			 .elseif currentLevel == 3
 			Map4:
 				invoke CreateMap4
-			; invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset 4
-			;.elseif currentLevel == 4
-		;Map5:
-			;invoke CreateMap5
-			; invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset 5
+				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel4
+			 .elseif currentLevel == 4
+		    Map5:
+				invoke CreateMap5
+				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel5
 			.endif
 			invoke syStartGame
 			invoke syUpdateMap
-			; invoke SendMessage, hStepText, WM_SETTEXT, 0, offset 0
-			; °Ñµ±Ç°²½Êıµ÷³É0£¬Ã¿ÒÆ¶¯Ò»²½£¬µ±Ç°²½Êı¼ÓÒ»
+			; æŠŠå½“å‰æ­¥æ•°è°ƒæˆ0ï¼Œæ¯ç§»åŠ¨ä¸€æ­¥ï¼Œå½“å‰æ­¥æ•°åŠ ä¸€
 			and currentStep, 0
 			and isWin, 0
 			and isLose, 0
-
+			invoke dwtoa, currentStep, offset cStep
+			invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
+		;é‡å¼€
 		.elseif eax == IDC_REMAKE
-			; ÖØ¿ªÓÎÏ·
-
 			mov currentLevel, 0
 			mov currentStep, 0
 			mov isWin, 0
 			mov isLose, 0
-
 			invoke syResetGame
-		; ÉÏ·½Ïò¼ü
+		; ä¸Šæ–¹å‘é”®
 		.elseif eax == IDC_UP
-			invoke syIsGameStarted
-			.if eax
-				; ÓÎÏ·¿ªÊ¼ÁË
-				.if (isWin == 0) && (isLose == 0)
-				invoke MoveUp
-				invoke JudgeWin
-					.if isWin == 1 && currentLevel == 1;Ó®ÁËÌøµÚ¶ş¹Ø
-						jmp Map2
-					.elseif isWin == 1 && currentLevel == 2; Ó®ÁËÌøµÚÈı¹Ø
-						jmp Map3
-					.elseif isWin == 1 && currentLevel == 3; Ó®ÁËÌøµÚËÄ¹Ø
-						jmp Map4
-					;.elseif isWin == 1 && currentLevel == 4; Ó®ÁËÌøµÚÎå¹Ø
-						;jmp Map5
-					.endif
+			.if (isWin == 0) && (isLose == 0)
+			invoke MoveUp
+			inc currentStep
+			invoke dwtoa, currentStep, offset cStep
+			invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
+			invoke JudgeWin
+				.if isWin == 1 && currentLevel == 1;èµ¢äº†è·³ç¬¬äºŒå…³
+				 ;invoke MessageBox, hWnd, offset cLose, offset GameName, MB_OK
+					jmp Map2
+				.elseif isWin == 1 && currentLevel == 2; èµ¢äº†è·³ç¬¬ä¸‰å…³
+					jmp Map3
+				.elseif isWin == 1 && currentLevel == 3; èµ¢äº†è·³ç¬¬å››å…³
+					jmp Map4
+				.elseif isWin == 1 && currentLevel == 4; èµ¢äº†è·³ç¬¬äº”å…³
+					jmp Map5
 				.endif
-				; ²½ÊıÏÈ²»¹Ü
 			.endif
-		; ÏÂ·½Ïò¼ü
+		; ä¸‹æ–¹å‘é”®
 		.elseif eax == IDC_DOWN
-			invoke syIsGameStarted
-			.if eax
-				; ÓÎÏ·¿ªÊ¼ÁË
-				.if (isWin == 0) && (isLose == 0)
-				invoke MoveDown
-				invoke JudgeWin
-					.if isWin == 1 && currentLevel == 1; Ó®ÁËÌøµÚ¶ş¹Ø
+			.if (isWin == 0) && (isLose == 0)
+			invoke MoveDown
+			inc currentStep
+			invoke dwtoa, currentStep, offset cStep
+			invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
+			invoke JudgeWin
+				.if isWin == 1 && currentLevel == 1; èµ¢äº†è·³ç¬¬äºŒå…³
+				 ;invoke MessageBox, hWnd, offset cLose, offset GameName, MB_OK
 					jmp Map2
-					.elseif isWin == 1 && currentLevel == 2; Ó®ÁËÌøµÚÈı¹Ø
+				.elseif isWin == 1 && currentLevel == 2; èµ¢äº†è·³ç¬¬ä¸‰å…³
 					jmp Map3
-					.elseif isWin == 1 && currentLevel == 3; Ó®ÁËÌøµÚËÄ¹Ø
+				.elseif isWin == 1 && currentLevel == 3; èµ¢äº†è·³ç¬¬å››å…³
 					jmp Map4
-					; .elseif isWin == 1 && currentLevel == 4; Ó®ÁËÌøµÚÎå¹Ø
-					; jmp Map5
-					.endif
+				.elseif isWin == 1 && currentLevel == 4; èµ¢äº†è·³ç¬¬äº”å…³
+					jmp Map5
 				.endif
 			.endif
-		; ×ó·½Ïò¼ü
+		; å·¦æ–¹å‘é”®
 		.elseif eax == IDC_LEFT
-			invoke syIsGameStarted
-			.if eax
-				; ÓÎÏ·¿ªÊ¼ÁË
-				.if (isWin == 0) && (isLose == 0)
-				invoke MoveLeft
-				invoke JudgeWin
-					.if isWin == 1 && currentLevel == 1; Ó®ÁËÌøµÚ¶ş¹Ø
+			.if (isWin == 0) && (isLose == 0)
+			invoke MoveLeft
+			inc currentStep
+			invoke dwtoa, currentStep, offset cStep
+			invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
+			invoke JudgeWin
+				.if isWin == 1 && currentLevel == 1; èµ¢äº†è·³ç¬¬äºŒå…³
 					jmp Map2
-					.elseif isWin == 1 && currentLevel == 2; Ó®ÁËÌøµÚÈı¹Ø
+				.elseif isWin == 1 && currentLevel == 2; èµ¢äº†è·³ç¬¬ä¸‰å…³
 					jmp Map3
-					.elseif isWin == 1 && currentLevel == 3; Ó®ÁËÌøµÚËÄ¹Ø
+				.elseif isWin == 1 && currentLevel == 3; èµ¢äº†è·³ç¬¬å››å…³
 					jmp Map4
-					; .elseif isWin == 1 && currentLevel == 4; Ó®ÁËÌøµÚÎå¹Ø
-					; jmp Map5
-					.endif
+				.elseif isWin == 1 && currentLevel == 4; èµ¢äº†è·³ç¬¬äº”å…³
+					jmp Map5
 				.endif
 			.endif
-		; ÓÒ·½Ïò¼ü
+		; å³æ–¹å‘é”®
 		.elseif eax == IDC_RIGHT
-			invoke syIsGameStarted
-			.if eax
-				; ÓÎÏ·¿ªÊ¼ÁË
-				.if (isWin == 0) && (isLose == 0)
-				invoke MoveRight
-				invoke JudgeWin
-					.if isWin == 1 && currentLevel == 1; Ó®ÁËÌøµÚ¶ş¹Ø
+			.if (isWin == 0) && (isLose == 0)
+			invoke MoveRight
+			inc currentStep
+			invoke dwtoa, currentStep, offset cStep
+			invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
+			invoke JudgeWin
+				.if isWin == 1 && currentLevel == 1; èµ¢äº†è·³ç¬¬äºŒå…³
 					jmp Map2
-					.elseif isWin == 1 && currentLevel == 2; Ó®ÁËÌøµÚÈı¹Ø
+				.elseif isWin == 1 && currentLevel == 2; èµ¢äº†è·³ç¬¬ä¸‰å…³
 					jmp Map3
-					.elseif isWin == 1 && currentLevel == 3; Ó®ÁËÌøµÚËÄ¹Ø
+				.elseif isWin == 1 && currentLevel == 3; èµ¢äº†è·³ç¬¬å››å…³
 					jmp Map4
-					; .elseif isWin == 1 && currentLevel == 4; Ó®ÁËÌøµÚÎå¹Ø
-					; jmp Map5
-					.endif
+				.elseif isWin == 1 && currentLevel == 4; èµ¢äº†è·³ç¬¬äº”å…³
+					jmp Map5
 				.endif
 			.endif
 		.endif
@@ -299,8 +299,8 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 Calculate endp
 
 InitRec proc hWnd : dword
-	; µ÷ÓÃGetDlgItemº¯Êı»ñµÃ·½¿éµÄ¾ä±ú
-	; °üÀ¨ÕûÌå±³¾°µÄ¾ä±úµÈ
+	; è°ƒç”¨GetDlgItemå‡½æ•°è·å¾—æ–¹å—çš„å¥æŸ„
+	; åŒ…æ‹¬æ•´ä½“èƒŒæ™¯çš„å¥æŸ„ç­‰
 	invoke GetDlgItem, hWnd, IDC_STEP
 	mov hStep, eax
 
@@ -317,7 +317,7 @@ InitRec proc hWnd : dword
 	InitRec endp
 
 InitBrush proc
-	; ´´½¨²»Í¬ÖÖÀàµÄ»­Ë¢ÑÕÉ«
+	; åˆ›å»ºä¸åŒç§ç±»çš„ç”»åˆ·é¢œè‰²
 	invoke CreateSolidBrush, DialogBack
 	mov hDialogBrush, eax
 
@@ -325,45 +325,45 @@ InitBrush proc
 InitBrush endp
 
 MoveUp proc
-	; ÕÒµ½µ±Ç°ÈËµÄÎ»ÖÃ
+	; æ‰¾åˆ°å½“å‰äººçš„ä½ç½®
 	xor esi, esi
-	mov esi, CurrPosition; ¼ÙÉèCurrPosition¼ÇÂ¼µ±Ç°ÈËµÄÎ»ÖÃ, esi¼ÇÂ¼µ±Ç°ÈËÎ»ÖÃ
+	mov esi, CurrPosition; å‡è®¾CurrPositionè®°å½•å½“å‰äººçš„ä½ç½®, esiè®°å½•å½“å‰äººä½ç½®
 	mov edi, esi
-	sub edi, 10; edi¼ÇÂ¼ÈËµÄÉÏ·½Î»ÖÃ
+	sub edi, 10; ediè®°å½•äººçš„ä¸Šæ–¹ä½ç½®
 
-	; ÉèÖÃ½ÇÉ«Á³³¯Ïò
+	; è®¾ç½®è§’è‰²è„¸æœå‘
 	invoke sySetPlayerFace, SY_FACE_UP
 
-	; ÅĞ¶ÏÉÏ·½¸ñ×ÓÀàĞÍ
-	; Èç¹ûÊÇ¿ÕµØ»ò½áÊøµã, ÈËÒÆ¶¯
+	; åˆ¤æ–­ä¸Šæ–¹æ ¼å­ç±»å‹
+	; å¦‚æœæ˜¯ç©ºåœ°æˆ–ç»“æŸç‚¹, äººç§»åŠ¨
 	.if CurrentMapText[edi * 4] == 2 || CurrentMapText[edi * 4] == 5
-		mov  CurrPosition, edi; ¸Ä±äÈËµÄµ±Ç°Î»ÖÃ
-		mov dword ptr CurrentMapText[edi * 4], 3; ¸Ä±äÉÏ·½·½¸ñÊôĞÔ
+		mov  CurrPosition, edi; æ”¹å˜äººçš„å½“å‰ä½ç½®
+		mov dword ptr CurrentMapText[edi * 4], 3; æ”¹å˜ä¸Šæ–¹æ–¹æ ¼å±æ€§
 		mov eax, OriginMapText[esi * 4]
 		mov CurrentMapText[esi * 4], eax
-		; Ë¢ĞÂ¸ñ×Ó
+		; åˆ·æ–°æ ¼å­
 		invoke syUpdateGrid, edi
 		invoke syUpdateGrid, esi
 
-	; Èç¹ûÊÇÏä×Ó
+	; å¦‚æœæ˜¯ç®±å­
 	.elseif CurrentMapText[edi * 4] == 4
-		; ÅĞ¶ÏÏä×ÓÄÇ±ßÊÇÊ²Ã´
+		; åˆ¤æ–­ç®±å­é‚£è¾¹æ˜¯ä»€ä¹ˆ
 		xor ecx, ecx
 		mov ecx, edi
-		sub ecx, 10; ecxÊÇÈËµÄÉÏÉÏ·½Î»ÖÃ
+		sub ecx, 10; ecxæ˜¯äººçš„ä¸Šä¸Šæ–¹ä½ç½®
 
-		; Èç¹ûÊÇÎ§Ç½»òÏä×Ó
+		; å¦‚æœæ˜¯å›´å¢™æˆ–ç®±å­
 		.if CurrentMapText[ecx * 4] == 1 || CurrentMapText[ecx * 4] == 4
-			; Ë¢ĞÂ¸ñ×Ó
+			; åˆ·æ–°æ ¼å­
 			invoke syUpdateGrid, esi
 		.else
-			; Ö»¿ÉÄÜÊÇ¿ÕµØ»ò´æ·Åµã£¬¿ÉÒÔÒÆ¶¯
-			mov CurrPosition, edi; ¸Ä±äÈËµÄµ±Ç°Î»ÖÃ
+			; åªå¯èƒ½æ˜¯ç©ºåœ°æˆ–å­˜æ”¾ç‚¹ï¼Œå¯ä»¥ç§»åŠ¨
+			mov CurrPosition, edi; æ”¹å˜äººçš„å½“å‰ä½ç½®
 			mov dword ptr CurrentMapText[ecx * 4], 4
 			mov dword ptr CurrentMapText[edi * 4], 3
 			mov eax, OriginMapText[esi * 4]
 			mov CurrentMapText[esi * 4], eax
-			; Ë¢ĞÂ¸ñ×Ó
+			; åˆ·æ–°æ ¼å­
 			invoke syUpdateGrid, ecx
 			invoke syUpdateGrid, edi
 			invoke syUpdateGrid, esi
@@ -371,214 +371,213 @@ MoveUp proc
 		.endif
 
 	.else
-		; ÊÇÇ½
+		; æ˜¯å¢™
 		invoke syUpdateGrid, esi
 	.endif
 	ret
 MoveUp endp
 
 MoveDown proc
-	; ÕÒµ½µ±Ç°ÈËµÄÎ»ÖÃ
+	; æ‰¾åˆ°å½“å‰äººçš„ä½ç½®
 	xor esi, esi
-	mov esi, CurrPosition; ¼ÙÉèCurrPosition¼ÇÂ¼µ±Ç°ÈËµÄÎ»ÖÃ, esi¼ÇÂ¼µ±Ç°ÈËÎ»ÖÃ
+	mov esi, CurrPosition; å‡è®¾CurrPositionè®°å½•å½“å‰äººçš„ä½ç½®, esiè®°å½•å½“å‰äººä½ç½®
 	mov edi, esi
-	add edi, 10; edi¼ÇÂ¼ÈËµÄÏÂ·½Î»ÖÃ
+	add edi, 10; ediè®°å½•äººçš„ä¸‹æ–¹ä½ç½®
 
-	; ÉèÖÃ½ÇÉ«Á³³¯Ïò
+	; è®¾ç½®è§’è‰²è„¸æœå‘
 	invoke sySetPlayerFace, SY_FACE_DOWN
 
-	; ÅĞ¶ÏÏÂ·½¸ñ×ÓÀàĞÍ
-	; Èç¹ûÊÇ¿ÕµØ»ò½áÊøµã, ÈËÒÆ¶¯
+	; åˆ¤æ–­ä¸‹æ–¹æ ¼å­ç±»å‹
+	; å¦‚æœæ˜¯ç©ºåœ°æˆ–ç»“æŸç‚¹, äººç§»åŠ¨
 	.if CurrentMapText[edi * 4] == 2 || CurrentMapText[edi * 4] == 5
-		mov dword ptr CurrPosition, edi; ¸Ä±äÈËµÄµ±Ç°Î»ÖÃ
-		mov dword ptr CurrentMapText[edi * 4], 3; ¸Ä±äÏÂ·½·½¸ñÊôĞÔ
+		mov dword ptr CurrPosition, edi; æ”¹å˜äººçš„å½“å‰ä½ç½®
+		mov dword ptr CurrentMapText[edi * 4], 3; æ”¹å˜ä¸‹æ–¹æ–¹æ ¼å±æ€§
 		mov eax, OriginMapText[esi * 4]
 		mov CurrentMapText[esi * 4], eax
-		; Ë¢ĞÂ¸ñ×Ó
+		; åˆ·æ–°æ ¼å­
 		invoke syUpdateGrid, edi
 		invoke syUpdateGrid, esi
 
-	; Èç¹ûÊÇÏä×Ó
+	; å¦‚æœæ˜¯ç®±å­
 	.elseif CurrentMapText[edi * 4] == 4
-		; ÅĞ¶ÏÏä×ÓÄÇ±ßÊÇÊ²Ã´
+		; åˆ¤æ–­ç®±å­é‚£è¾¹æ˜¯ä»€ä¹ˆ
 		xor ecx, ecx
 		mov ecx, edi
-		add ecx, 10; ecxÊÇÈËµÄÏÂÏÂ·½Î»ÖÃ
+		add ecx, 10; ecxæ˜¯äººçš„ä¸‹ä¸‹æ–¹ä½ç½®
 
-		; Èç¹ûÊÇÎ§Ç½»òÏä×Ó
+		; å¦‚æœæ˜¯å›´å¢™æˆ–ç®±å­
 		.if CurrentMapText[ecx * 4] == 1 || CurrentMapText[ecx * 4] == 4
-		; É¾³ıÁËcontinue
-			; Ë¢ĞÂ¸ñ×Ó
+		; åˆ é™¤äº†continue
+			; åˆ·æ–°æ ¼å­
 			invoke syUpdateGrid, esi
 		.else
-			; Ö»¿ÉÄÜÊÇ¿ÕµØ»ò´æ·Åµã£¬¿ÉÒÔÒÆ¶¯
-			mov CurrPosition, edi; ¸Ä±äÈËµÄµ±Ç°Î»ÖÃ
+			; åªå¯èƒ½æ˜¯ç©ºåœ°æˆ–å­˜æ”¾ç‚¹ï¼Œå¯ä»¥ç§»åŠ¨
+			mov CurrPosition, edi; æ”¹å˜äººçš„å½“å‰ä½ç½®
 			mov dword ptr CurrentMapText[ecx * 4], 4
 			mov dword ptr CurrentMapText[edi * 4], 3
 			mov eax, OriginMapText[esi * 4]
 			mov CurrentMapText[esi * 4], eax
-			; Ë¢ĞÂ¸ñ×Ó
+			; åˆ·æ–°æ ¼å­
 			invoke syUpdateGrid, ecx
 			invoke syUpdateGrid, edi
 			invoke syUpdateGrid, esi
 		.endif
 
 	.else
-		; ÊÇÇ½
+		; æ˜¯å¢™
 		invoke syUpdateGrid, esi
 	.endif
 	ret
 MoveDown endp
 
 MoveLeft proc
-	; ÕÒµ½µ±Ç°ÈËµÄÎ»ÖÃ
+	; æ‰¾åˆ°å½“å‰äººçš„ä½ç½®
 	xor esi, esi
-	mov esi, CurrPosition; ¼ÙÉèCurrPosition¼ÇÂ¼µ±Ç°ÈËµÄÎ»ÖÃ, esi¼ÇÂ¼µ±Ç°ÈËÎ»ÖÃ
+	mov esi, CurrPosition; å‡è®¾CurrPositionè®°å½•å½“å‰äººçš„ä½ç½®, esiè®°å½•å½“å‰äººä½ç½®
 	mov edi, esi
-	sub edi, 1; edi¼ÇÂ¼ÈËµÄ×ó·½Î»ÖÃ
+	sub edi, 1; ediè®°å½•äººçš„å·¦æ–¹ä½ç½®
 
-	; ÉèÖÃ½ÇÉ«Á³³¯Ïò
+	; è®¾ç½®è§’è‰²è„¸æœå‘
 	invoke sySetPlayerFace, SY_FACE_LEFT
 
-	; ÅĞ¶Ï×ó·½¸ñ×ÓÀàĞÍ
-	; Èç¹ûÊÇ¿ÕµØ»ò½áÊøµã, ÈËÒÆ¶¯
+	; åˆ¤æ–­å·¦æ–¹æ ¼å­ç±»å‹
+	; å¦‚æœæ˜¯ç©ºåœ°æˆ–ç»“æŸç‚¹, äººç§»åŠ¨
 	.if CurrentMapText[edi * 4] == 2 || CurrentMapText[edi * 4] == 5
-		mov dword ptr CurrPosition, edi; ¸Ä±äÈËµÄµ±Ç°Î»ÖÃ
-		mov dword ptr CurrentMapText[edi * 4], 3; ¸Ä±ä×ó·½·½¸ñÊôĞÔ
+		mov dword ptr CurrPosition, edi; æ”¹å˜äººçš„å½“å‰ä½ç½®
+		mov dword ptr CurrentMapText[edi * 4], 3; æ”¹å˜å·¦æ–¹æ–¹æ ¼å±æ€§
 		mov eax, OriginMapText[esi * 4]
 		mov CurrentMapText[esi * 4], eax
-		; Ë¢ĞÂ¸ñ×Ó
+		; åˆ·æ–°æ ¼å­
 		invoke syUpdateGrid, edi
 		invoke syUpdateGrid, esi
-	; Èç¹ûÊÇÏä×Ó
+	; å¦‚æœæ˜¯ç®±å­
 	.elseif CurrentMapText[edi * 4] == 4
-		; ÅĞ¶ÏÏä×ÓÄÇ±ßÊÇÊ²Ã´
+		; åˆ¤æ–­ç®±å­é‚£è¾¹æ˜¯ä»€ä¹ˆ
 		xor ecx, ecx
 		mov ecx, edi
-		sub ecx, 1; ecxÊÇÈËµÄ×ó×ó·½Î»ÖÃ
+		sub ecx, 1; ecxæ˜¯äººçš„å·¦å·¦æ–¹ä½ç½®
 
-		; Èç¹ûÊÇÎ§Ç½»òÏä×Ó
+		; å¦‚æœæ˜¯å›´å¢™æˆ–ç®±å­
 		.if CurrentMapText[ecx * 4] == 1 || CurrentMapText[ecx * 4] == 4
 			; .continue
-			; Ë¢ĞÂ¸ñ×Ó
+			; åˆ·æ–°æ ¼å­
 			invoke syUpdateGrid, esi
 		.else
-			; Ö»¿ÉÄÜÊÇ¿ÕµØ»ò´æ·Åµã£¬¿ÉÒÔÒÆ¶¯
-			mov dword ptr CurrPosition, edi; ¸Ä±äÈËµÄµ±Ç°Î»ÖÃ
+			; åªå¯èƒ½æ˜¯ç©ºåœ°æˆ–å­˜æ”¾ç‚¹ï¼Œå¯ä»¥ç§»åŠ¨
+			mov dword ptr CurrPosition, edi; æ”¹å˜äººçš„å½“å‰ä½ç½®
 			mov dword ptr CurrentMapText[ecx * 4], 4
 			mov dword ptr CurrentMapText[edi * 4], 3
 			mov eax, OriginMapText[esi * 4]
 			mov CurrentMapText[esi * 4], eax
-			; Ë¢ĞÂ¸ñ×Ó
+			; åˆ·æ–°æ ¼å­
 			invoke syUpdateGrid, ecx
 			invoke syUpdateGrid, edi
 			invoke syUpdateGrid, esi
 		.endif
 
 	.else
-		; ÊÇÇ½
+		; æ˜¯å¢™
 		invoke syUpdateGrid, esi
 	.endif
 	ret
 MoveLeft endp
 
 MoveRight proc
-	; ÕÒµ½µ±Ç°ÈËµÄÎ»ÖÃ
+	; æ‰¾åˆ°å½“å‰äººçš„ä½ç½®
 	xor esi, esi
-	mov esi, CurrPosition; ¼ÙÉèCurrPosition¼ÇÂ¼µ±Ç°ÈËµÄÎ»ÖÃ, esi¼ÇÂ¼µ±Ç°ÈËÎ»ÖÃ
+	mov esi, CurrPosition; å‡è®¾CurrPositionè®°å½•å½“å‰äººçš„ä½ç½®, esiè®°å½•å½“å‰äººä½ç½®
 	mov edi, esi
-	add edi, 1; edi¼ÇÂ¼ÈËµÄÓÒ·½Î»ÖÃ
+	add edi, 1; ediè®°å½•äººçš„å³æ–¹ä½ç½®
 
-	; ÉèÖÃ½ÇÉ«Á³³¯Ïò
+	; è®¾ç½®è§’è‰²è„¸æœå‘
 	invoke sySetPlayerFace, SY_FACE_RIGHT
 
-	; ÅĞ¶Ï×ó·½¸ñ×ÓÀàĞÍ
-	; Èç¹ûÊÇ¿ÕµØ»ò½áÊøµã, ÈËÒÆ¶¯
+	; åˆ¤æ–­å·¦æ–¹æ ¼å­ç±»å‹
+	; å¦‚æœæ˜¯ç©ºåœ°æˆ–ç»“æŸç‚¹, äººç§»åŠ¨
 	.if CurrentMapText[edi * 4] == 2 || CurrentMapText[edi * 4] == 5
-		mov dword ptr CurrPosition, edi; ¸Ä±äÈËµÄµ±Ç°Î»ÖÃ
-		mov dword ptr CurrentMapText[edi * 4], 3; ¸Ä±äÓÒ·½·½¸ñÊôĞÔ
+		mov dword ptr CurrPosition, edi; æ”¹å˜äººçš„å½“å‰ä½ç½®
+		mov dword ptr CurrentMapText[edi * 4], 3; æ”¹å˜å³æ–¹æ–¹æ ¼å±æ€§
 		mov eax, OriginMapText[esi * 4]
 		mov CurrentMapText[esi * 4], eax
-		; Ë¢ĞÂ¸ñ×Ó
+		; åˆ·æ–°æ ¼å­
 		invoke syUpdateGrid, edi
 		invoke syUpdateGrid, esi
-	; Èç¹ûÊÇÏä×Ó
+	; å¦‚æœæ˜¯ç®±å­
 	.elseif CurrentMapText[edi * 4] == 4
-		; ÅĞ¶ÏÏä×ÓÄÇ±ßÊÇÊ²Ã´
+		; åˆ¤æ–­ç®±å­é‚£è¾¹æ˜¯ä»€ä¹ˆ
 		xor ecx, ecx
 		mov ecx, edi
-		add ecx, 1; ecxÊÇÈËµÄÓÒÓÒ·½Î»ÖÃ
+		add ecx, 1; ecxæ˜¯äººçš„å³å³æ–¹ä½ç½®
 
-		; Èç¹ûÊÇÎ§Ç½»òÏä×Ó
+		; å¦‚æœæ˜¯å›´å¢™æˆ–ç®±å­
 		.if CurrentMapText[ecx * 4] == 1 || CurrentMapText[ecx * 4] == 4
 			; .continue
-			; Ë¢ĞÂ¸ñ×Ó
+			; åˆ·æ–°æ ¼å­
 			invoke syUpdateGrid, esi
 		.else
-			; Ö»¿ÉÄÜÊÇ¿ÕµØ»ò´æ·Åµã£¬¿ÉÒÔÒÆ¶¯
-			mov dword ptr CurrPosition, edi; ¸Ä±äÈËµÄµ±Ç°Î»ÖÃ
+			; åªå¯èƒ½æ˜¯ç©ºåœ°æˆ–å­˜æ”¾ç‚¹ï¼Œå¯ä»¥ç§»åŠ¨
+			mov dword ptr CurrPosition, edi; æ”¹å˜äººçš„å½“å‰ä½ç½®
 			mov dword ptr CurrentMapText[ecx * 4], 4
 			mov dword ptr CurrentMapText[edi * 4], 3
 			mov eax, OriginMapText[esi * 4]
 			mov CurrentMapText[esi * 4], eax
-			; Ë¢ĞÂ¸ñ×Ó
+			; åˆ·æ–°æ ¼å­
 			invoke syUpdateGrid, ecx
 			invoke syUpdateGrid, edi
 			invoke syUpdateGrid, esi
 		.endif
 
 	.else
-		; ÊÇÇ½
+		; æ˜¯å¢™
 		invoke syUpdateGrid, esi
 	; .continue
 	.endif
 	ret
 MoveRight endp
 
-
-	; µÚÒ»¹ØµØÍ¼³õÊ¼»¯
+	; ç¬¬ä¸€å…³åœ°å›¾åˆå§‹åŒ–
 CreateMap1 proc
 
 	xor ebx, ebx
 	.while ebx < REC_LEN
-		.if (ebx < 13 || (ebx > 15 && ebx < 23) || (ebx > 25 && ebx < 33) || ebx == 39 || ebx == 40 || ebx == 49 || ebx == 50 || ebx == 59 || ebx == 60 || (ebx > 66 && ebx < 74) || (ebx > 76 && ebx < 84) || ebx > 86)
-			mov dword ptr CurrentMapText[ebx * 4], 0
-			inc ebx
-		.elseif((ebx > 12 && ebx < 16) || ebx == 23 || ebx == 25 || ebx == 33 || (ebx > 34 && ebx < 39) || (ebx > 40 && ebx < 44) || ebx == 48 || ebx == 51 || (ebx > 55 && ebx < 59) || (ebx > 60 && ebx < 65) || ebx == 66 || ebx == 74 || ebx == 76 || (ebx > 83 && ebx < 87))
-			mov dword ptr CurrentMapText[ebx * 4], 1
-			inc ebx
-		.elseif(ebx == 34 || ebx == 45 || ebx == 53)
-			mov dword ptr CurrentMapText[ebx * 4], 2
-			inc ebx
-		.elseif ebx == 55
-			mov dword ptr CurrentMapText[ebx * 4], 3
-			inc ebx
-		.elseif(ebx == 44 || ebx == 46 || ebx == 54 || ebx == 65)
-			mov dword ptr CurrentMapText[ebx * 4], 4
-			inc ebx
-		.elseif(ebx == 24 || ebx == 47 || ebx == 52 || ebx == 75)
-			mov dword ptr CurrentMapText[ebx * 4], 5
-			inc ebx
-		.endif
+	.if (ebx < 13 || (ebx > 15 && ebx < 23) || (ebx > 25 && ebx < 33) || ebx == 39 || ebx == 40 || ebx == 49 || ebx == 50 || ebx == 59 || ebx == 60 || (ebx > 66 && ebx < 74) || (ebx > 76 && ebx < 84) || ebx > 86)
+	mov dword ptr CurrentMapText[ebx * 4], 0
+	inc ebx
+	.elseif((ebx > 12 && ebx < 16) || ebx == 23 || ebx == 25 || ebx == 33 || (ebx > 34 && ebx < 39) || (ebx > 40 && ebx < 44) || ebx == 48 || ebx == 51 || (ebx > 55 && ebx < 59) || (ebx > 60 && ebx < 65) || ebx == 66 || ebx == 74 || ebx == 76 || (ebx > 83 && ebx < 87))
+	mov dword ptr CurrentMapText[ebx * 4], 1
+	inc ebx
+	.elseif(ebx == 34 || ebx == 45 || ebx == 53)
+	mov dword ptr CurrentMapText[ebx * 4], 2
+	inc ebx
+	.elseif ebx == 55
+	mov dword ptr CurrentMapText[ebx * 4], 3
+	inc ebx
+	.elseif(ebx == 44 || ebx == 46 || ebx == 54 || ebx == 65)
+	mov dword ptr CurrentMapText[ebx * 4], 4
+	inc ebx
+	.elseif(ebx == 24 || ebx == 47 || ebx == 52 || ebx == 75)
+	mov dword ptr CurrentMapText[ebx * 4], 5
+	inc ebx
+	.endif
 	.endw
 
 	xor ebx, ebx
 	.while ebx < REC_LEN
-		mov eax, dword ptr CurrentMapText[ebx * 4]
-		.if eax == 3 || eax == 4
-			mov dword ptr OriginMapText[ebx * 4], 2
-			inc ebx
-		.else
-			mov dword ptr OriginMapText[ebx * 4], eax
-			inc ebx
-		.endif
+	mov eax, dword ptr CurrentMapText[ebx * 4]
+	.if eax == 3 || eax == 4
+	mov dword ptr OriginMapText[ebx * 4], 2
+	inc ebx
+	.else
+	mov dword ptr OriginMapText[ebx * 4], eax
+	inc ebx
+	.endif
 	.endw
 	mov CurrPosition, 55
 	ret
 
 CreateMap1 endp
 
-	; µÚ¶ş¹ØµØÍ¼³õÊ¼»¯
+	; ç¬¬äºŒå…³åœ°å›¾åˆå§‹åŒ–
 CreateMap2 proc
 
 	xor ebx, ebx
@@ -623,7 +622,7 @@ CreateMap2 proc
 
 CreateMap2 endp
 
-	; µÚÈı¹ØµØÍ¼³õÊ¼»¯
+	; ç¬¬ä¸‰å…³åœ°å›¾åˆå§‹åŒ–
 CreateMap3 proc
 
 	xor ebx, ebx
@@ -664,7 +663,7 @@ CreateMap3 proc
 	ret
 CreateMap3 endp
 
-	; µÚËÄ¹ØµØÍ¼³õÊ¼»¯
+	; ç¬¬å››å…³åœ°å›¾åˆå§‹åŒ–
 CreateMap4 proc
 
 	xor ebx, ebx
@@ -708,7 +707,53 @@ CreateMap4 proc
 	ret
 CreateMap4 endp
 
-; Ö÷³ÌĞò
+	; ç¬¬äº”å…³åœ°å›¾åˆå§‹åŒ–
+CreateMap5 proc
+	
+	xor ebx, ebx
+	.while ebx < REC_LEN
+		.if ( ebx < 12 || ( ebx > 16 && ebx < 22 ) || ( ebx > 27 && ebx < 32 ) || ( ebx > 37 && ebx < 41 ) || ebx == 49 || ebx == 50 || ebx == 59 || ebx == 60 || ebx == 69 || ebx == 70 || ebx == 79 || ebx == 80 || ebx > 88 )
+			mov dword ptr CurrentMapText[ebx * 4], 0
+			inc ebx 
+		.elseif ( ebx == 24 || ebx == 33 || ebx == 35 || ebx == 36 || ebx == 44 || ebx == 46 || ebx == 54 || ebx == 56 || ebx == 57 || ebx == 64 || ebx == 65 || ebx == 67 || ebx == 73 || ebx == 74 || ebx == 75 || ebx == 77 )
+			mov dword ptr CurrentMapText[ebx * 4], 2
+			inc ebx
+		.elseif ebx == 23
+			mov dword ptr CurrentMapText[ebx * 4], 3
+			inc ebx
+		.elseif ( ebx == 34 || ebx == 63 || ebx == 76 )
+			mov dword ptr CurrentMapText[ebx * 4], 4
+			inc ebx
+		.elseif ( ebx == 52 || ebx == 62 || ebx == 72 )
+			mov dword ptr CurrentMapText[ebx * 4], 5
+			inc ebx
+		.else
+			mov dword ptr CurrentMapText[ebx * 4], 1
+			inc ebx
+		.endif
+	.endw
+
+	xor ebx, ebx
+	.while ebx < REC_LEN
+		mov eax, dword ptr CurrentMapText[ebx * 4]
+		.if eax == 3 || eax == 4
+			mov dword ptr OriginMapText[ebx * 4], 2
+			.if ebx == 75
+				mov dword ptr OriginMapText[ebx * 4], 5
+			.endif
+			inc ebx
+		.else
+			mov dword ptr OriginMapText[ebx * 4], eax
+			inc ebx
+		.endif
+	.endw
+	mov	CurrPosition,23
+	ret
+
+CreateMap5 endp
+
+
+; ä¸»ç¨‹åº
 main proc
 
 	invoke GetModuleHandle, NULL
