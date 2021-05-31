@@ -41,11 +41,11 @@ Click "重新开始" to return to the first level
 Click "开始游戏" to restart the current level
 ```
 
----
-## About Us
-Author: Gong Hailong · [@Blog](https://blog.csdn.net/weixin_43794327?spm=1019.2139.3001.5343) · [@GitHub](https://github.com/TommyGong08)
-Leader: [@Ge Xingtong](https://github.com/MonsterGe)
-team members:   
-[@Xu Siyuan](https://github.com/mcube-12139)
-[@Wang Yingming](https://github.com/smartoooo)
-[@Gong Hailong](https://github.com/TommyGong08). 
+---  
+## About Us  
+Author: Gong Hailong · [@Blog](https://blog.csdn.net/weixin_43794327?spm=1019.2139.3001.5343) · [@GitHub](https://github.com/TommyGong08)    
+Leader: [@Ge Xingtong](https://github.com/MonsterGe)  
+team members:     
+[@Xu Siyuan](https://github.com/mcube-12139)  
+[@Wang Yingming](https://github.com/smartoooo)  
+[@Gong Hailong](https://github.com/TommyGong08).     
