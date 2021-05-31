@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// ‰∏≠Êñá(ÁÆÄ‰ΩìÔºå‰∏≠ÂõΩ) resources
+// ÷–Œƒ(ºÚÃÂ£¨÷–π˙) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
@@ -52,12 +52,12 @@ END
 
 IDD_DIALOG1 DIALOGEX 0, 0, 455, 448
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Êé®ÁÆ±Â≠ê"
+CAPTION "Õ∆œ‰◊”"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    PUSHBUTTON      "ÈáçÊñ∞ÂºÄÂßã",IDC_REMAKE,232,20,91,32
-    CTEXT           "ÂÖ≥Âç°",IDC_LEVEL,24,18,48,16,SS_CENTERIMAGE
-    CTEXT           "Ê≠•Êï∞",IDC_STEP,138,18,48,16,SS_CENTERIMAGE
+    PUSHBUTTON      "÷ÿ–¬ø™ º",IDC_REMAKE,232,20,91,32
+    CTEXT           "πÿø®",IDC_LEVEL,24,18,48,16,SS_CENTERIMAGE
+    CTEXT           "≤Ω ˝",IDC_STEP,138,18,48,16,SS_CENTERIMAGE
     CTEXT           "0",IDC_STEPTEXT,138,34,48,16,SS_CENTERIMAGE
     CTEXT           "0",IDC_LEVELTEXT,24,34,48,16,SS_CENTERIMAGE
     CONTROL         "",IDC_DATE,"SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,336,0,88,12
@@ -65,7 +65,7 @@ BEGIN
     PUSHBUTTON      "DOWN",IDC_DOWN,144,388,40,14,NOT WS_VISIBLE
     PUSHBUTTON      "LEFT",IDC_LEFT,264,388,40,14,NOT WS_VISIBLE
     PUSHBUTTON      "RIGHT",IDC_RIGHT,384,388,40,14,NOT WS_VISIBLE
-    PUSHBUTTON      "ÂºÄÂßãÊ∏∏Êàè",IDC_NEW,336,20,88,32
+    PUSHBUTTON      "ø™ º”Œœ∑",IDC_NEW,336,20,88,32
 END
 
 
@@ -112,15 +112,15 @@ END
 
 IDR_MENU1 MENU
 BEGIN
-    POPUP "ÊéßÂà∂(&C)"
+    POPUP "øÿ÷∆(&C)"
     BEGIN
-        MENUITEM "Êñ∞Ê∏∏Êàè(&N)",                     ID_NEW
-        MENUITEM "ÈÄÄÂá∫(&E)",                      ID_EXIT
+        MENUITEM "–¬”Œœ∑(&N)",                     ID_NEW
+        MENUITEM "ÕÀ≥ˆ(&E)",                      ID_EXIT
     END
-    POPUP "Â∏ÆÂä©(H)"
+    POPUP "∞Ô÷˙(H)"
     BEGIN
-        MENUITEM "ÂÖ≥‰∫é(&A)",                      ID_ABOUT
-        MENUITEM "‰ΩúËÄÖ(&W)",                      ID_WRITER
+        MENUITEM "πÿ”⁄(&A)",                      ID_ABOUT
+        MENUITEM "◊˜’ﬂ(&W)",                      ID_WRITER
     END
 END
 
@@ -143,7 +143,7 @@ BEGIN
     VK_SPACE,       IDC_REMAKE,             VIRTKEY, NOINVERT
 END
 
-#endif    // ‰∏≠Êñá(ÁÆÄ‰ΩìÔºå‰∏≠ÂõΩ) resources
+#endif    // ÷–Œƒ(ºÚÃÂ£¨÷–π˙) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

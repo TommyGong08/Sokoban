@@ -7,16 +7,16 @@ include sy.inc
 .data
 
 ; 位图文件名
-syTitleFileName byte "title.bmp", 0h
-syBoxFileName byte "box.bmp", 0h
-syPlayerUpFileName byte "player-up.bmp", 0h
-syPlayerRightFileName byte "player-right.bmp", 0h
-syPlayerDownFileName byte "player-down.bmp", 0h
-syPlayerLeftFileName byte "player-left.bmp", 0h
-syWallFileName byte "wall.bmp", 0h
-syEmptyFileName byte "empty.bmp", 0h
-syTargetFileName byte "target.bmp", 0h
-syBoxTargetFileName byte "box-target.bmp", 0h
+syTitleFileName byte "./pic/title.bmp", 0h
+syBoxFileName byte "./pic/box.bmp", 0h
+syPlayerUpFileName byte "./pic/player-up.bmp", 0h
+syPlayerRightFileName byte "./pic/player-right.bmp", 0h
+syPlayerDownFileName byte "./pic/player-down.bmp", 0h
+syPlayerLeftFileName byte "./pic/player-left.bmp", 0h
+syWallFileName byte "./pic/wall.bmp", 0h
+syEmptyFileName byte "./pic/empty.bmp", 0h
+syTargetFileName byte "./pic/target.bmp", 0h
+syBoxTargetFileName byte "./pic/box-target.bmp", 0h
 
 ; 位图
 syTitleBitmap HBITMAP ?
