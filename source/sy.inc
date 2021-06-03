@@ -17,53 +17,37 @@ includelib masm32.lib
 includelib gdi32.lib
 includelib msvcrt.lib
 
-; º¯ÊıÉùÃ÷
+; å‡½æ•°å£°æ˜
 
-; ÉèÖÃÖ÷´°Ìåid
-; win: HWND ´°Ìåid
+; è®¾ç½®ä¸»çª—ä½“id
+; win: HWND çª—ä½“id
 sySetMainWinId proto win: HWND
-; ¿ªÊ¼ÓÎÏ·
+
+; å¼€å§‹æ¸¸æˆ
 syStartGame proto
-; ÖØÖÃÓÎÏ·
+; é‡ç½®æ¸¸æˆ
 syResetGame proto
-; »ñÈ¡ÓÎÏ·ÊÇ·ñ¿ªÊ¼
-syIsGameStarted proto
-; ÉèÖÃ½ÇÉ«Á³³¯Ïò
+; è¿›å…¥å…³å¡é€‰æ‹©
+sySelectLevel proto
+; ç»“æŸæ¸¸æˆ
+syEndGame proto
+
+; è®¾ç½®è§’è‰²è„¸æœå‘
 sySetPlayerFace proto u32Face: dword
-; Ë¢ĞÂÈ«Í¼
+; åˆ·æ–°å…¨å›¾
 syUpdateMap proto
-; Ë¢ĞÂ¸ñ×Ó
-; u32GridInd: dword ¸ñ×ÓºÅ
+; åˆ·æ–°æ ¼å­
+; u32GridInd: dword æ ¼å­å·
 syUpdateGrid proto u32GridInd: dword
-; »æÖÆÈ«Í¼
-; devc: HDC Éè±¸ÉÏÏÂÎÄid
+; ç»˜åˆ¶å…¨å›¾
+; devc: HDC è®¾å¤‡ä¸Šä¸‹æ–‡id
 syDrawMap proto devc: HDC
 
-; ¼ÓÔØÎ»Í¼
-syLoadImage proto
-; ¿ªÊ¼»æÖÆ
-syBeginDraw proto
-; ½áÊø»æÖÆ
-syEndDraw proto
-; »æÖÆÎ»Í¼
-; bitmap: HBITMAP Î»Í¼id
-; i32X: sword »æÖÆÎ»ÖÃx
-; i32Y: sword »æÖÆÎ»ÖÃy
-; u32Width: dword »æÖÆ¿í¶È
-; u32Height: dword »æÖÆ¸ß¶È
-syDrawImage proto bitmap: HBITMAP, i32X: sword, i32Y: sword, u32Width: dword, u32Height: dword
+; å˜é‡å£°æ˜
 
-; ±äÁ¿ÉùÃ÷
-
-REC_LEN equ 100
 SY_FACE_UP equ 0
 SY_FACE_RIGHT equ 1
 SY_FACE_DOWN equ 2
 SY_FACE_LEFT equ 3
-
-externdef OriginMapText: dword
-externdef CurrentMapText: dword
-; ÓÎÏ·ÊÇ·ñ¿ªÊ¼
-externdef syGameStarted: byte
 
 endif
