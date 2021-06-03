@@ -69,3 +69,14 @@ ID_NEW                 EQU         40007
 ID_EXIT                EQU         40008
 ID_ABOUT               EQU         40009
 ID_WRITER              EQU         40012
+
+IDC_BLEVEL1            EQU         1130
+IDC_BLEVEL2            EQU         1131
+IDC_BLEVEL3            EQU         1132
+IDC_BLEVEL4            EQU         1133
+IDC_BLEVEL5            EQU         1134
+IDC_BLEVEL6            EQU         1135
+IDC_BLEVEL7            EQU         1136
+IDC_BLEVEL8            EQU         1137
+IDC_BLEVEL9            EQU         1138
+IDC_BLEVEL10           EQU         1139
