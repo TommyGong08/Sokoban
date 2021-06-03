@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ …˙≥…µƒ∞¸∫¨Œƒº˛°£
-// π© sokoban.rc  π”√
+// Microsoft Visual C++ ÁîüÊàêÁöÑÂåÖÂê´Êñá‰ª∂„ÄÇ
+// ‰æõ sokoban.rc ‰ΩøÁî®
 //
 #define IDR_ACCELERATOR1                101
 #define IDD_DIALOG1                     102
@@ -19,6 +19,17 @@
 #define IDC_LEVEL                       1124
 #define IDC_LEVELTEXT                   1125
 #define IDC_REMAKE                      1126
+#define IDC_BLEVEL1                     1130
+#define IDC_BLEVEL2                     1131
+#define IDC_BLEVEL3                     1132
+#define IDC_BLEVEL4                     1133
+#define IDC_BLEVEL5                     1134
+#define IDC_BLEVEL6                     1135
+#define IDC_BLEVEL7                     1136
+#define IDC_BLEVEL8                     1137
+#define IDC_BLEVEL9                     1138
+#define IDC_BLEVEL10                    1139
+
 #define ID_40004                        40004
 #define ID_40005                        40005
 #define ID_40006                        40006
@@ -35,7 +46,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        113
 #define _APS_NEXT_COMMAND_VALUE         40025
-#define _APS_NEXT_CONTROL_VALUE         1130
+#define _APS_NEXT_CONTROL_VALUE         1131
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
