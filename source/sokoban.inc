@@ -1,3 +1,6 @@
+ifndef SOKOBAN_INC
+SOKOBAN_INC equ <1>
+
 include windows.inc
 include user32.inc
 include kernel32.inc
@@ -80,3 +83,8 @@ IDC_BLEVEL7            EQU         1136
 IDC_BLEVEL8            EQU         1137
 IDC_BLEVEL9            EQU         1138
 IDC_BLEVEL10           EQU         1139
+
+externdef CurrentMapText: dword
+externdef OriginMapText: dword
+
+endif
