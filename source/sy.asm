@@ -1,12 +1,15 @@
+.386
 .model flat, stdcall
 option casemap: none
 
 include sy.inc
+include sokoban.inc
 
 .data
 
-; Î»Í¼ÎÄ¼şÃû
+; ä½å›¾æ–‡ä»¶å
 syTitleFileName byte "./pic/title.bmp", 0h
+
 syBoxFileName byte "./pic/box.bmp", 0h
 syPlayerUpFileName byte "./pic/player-up.bmp", 0h
 syPlayerRightFileName byte "./pic/player-right.bmp", 0h
@@ -17,8 +20,11 @@ syEmptyFileName byte "./pic/empty.bmp", 0h
 syTargetFileName byte "./pic/target.bmp", 0h
 syBoxTargetFileName byte "./pic/box-target.bmp", 0h
 
-; Î»Í¼
+syClearFileName byte "./pic/clear.bmp", 0h
+
+; ä½å›¾
 syTitleBitmap HBITMAP ?
+
 syBoxBitmap HBITMAP ?
 syPlayerUpBitmap HBITMAP ?
 syPlayerRightBitmap HBITMAP ?
@@ -29,55 +35,80 @@ syEmptyBitmap HBITMAP ?
 syTargetBitmap HBITMAP ?
 syBoxTargetBitmap HBITMAP ?
 
-; ÓÎÏ·ÊÇ·ñ¿ªÊ¼
-syGameStarted byte 0
-; Íæ¼Ò³¯Ïò
+syClearBitmap HBITMAP ?
+
+; æ¸¸æˆåœºæ™¯
+syScene byte 0
+; ç©å®¶æœå‘
 syPlayerFace dword 0
 
-; Ö÷´°Ìåid
+; ä¸»çª—ä½“id
 syMainWinId HWND ?
 ; DC
 ; I hate GDI
 syMainWinDC HDC ?
 syMainBitmapDC HDC ?
 
-; µØÍ¼ÇøÓòx
+; åœ°å›¾åŒºåŸŸx
 SY_MAPX equ 35
-; µØÍ¼ÇøÓòy
+; åœ°å›¾åŒºåŸŸy
 SY_MAPY equ 90
-; ¸ñ×Ó³ß´ç
+; æ ¼å­å°ºå¯¸
 SY_GRID_SIZE equ 48
-; µØÍ¼³ß´ç
+; åœ°å›¾å°ºå¯¸
 SY_MAP_SIZE equ 480
 
-; µØÍ¼ÀàĞÍ
-; ÎŞ
+; åœ°å›¾ç±»å‹
+; æ— 
 SY_GRID_TYPE_NOTHING equ 0
-; Ç½
+; å¢™
 SY_GRID_TYPE_WALL equ 1
-; ¿ÕµØ
+; ç©ºåœ°
 SY_GRID_TYPE_EMPTY equ 2
-; Íæ¼Ò
+; ç©å®¶
 SY_GRID_TYPE_PLAYER equ 3
-; Ïä×Ó²»ÔÚÄ¿±êµã
+; ç®±å­ä¸åœ¨ç›®æ ‡ç‚¹
 SY_GRID_TYPE_BOX equ 4
-; Ä¿±êµã
+; ç›®æ ‡ç‚¹
 SY_GRID_TYPE_TARGET equ 5
-; Ïä×ÓÔÚÄ¿±êµã
+; ç®±å­åœ¨ç›®æ ‡ç‚¹
 SY_GRID_TYPE_BOX_TARGET equ 6
-; ³¯ÉÏµÄÍæ¼Ò
+; æœä¸Šçš„ç©å®¶
 SY_GRID_TYPE_PLAYER_UP equ 7
-; ³¯ÓÒµÄÍæ¼Ò
+; æœå³çš„ç©å®¶
 SY_GRID_TYPE_PLAYER_RIGHT equ 8
-; ³¯ÏÂµÄÍæ¼Ò
+; æœä¸‹çš„ç©å®¶
 SY_GRID_TYPE_PLAYER_DOWN equ 9
-; ³¯×óµÄÍæ¼Ò
+; æœå·¦çš„ç©å®¶
 SY_GRID_TYPE_PLAYER_LEFT equ 10
+
+; æ ‡é¢˜åœºæ™¯
+SY_SCENE_TITLE equ 0
+; é€‰æ‹©å…³å¡åœºæ™¯
+SY_SCENE_SELECT_LEVEL equ 1
+; å…³å¡åœºæ™¯
+SY_SCENE_LEVEL equ 2
+; é€šå…³åœºæ™¯
+SY_SCENE_CLEAR equ 3
 
 .code
 
+; åŠ è½½ä½å›¾
+syLoadImage proto
+; å¼€å§‹ç»˜åˆ¶
+syBeginDraw proto
+; ç»“æŸç»˜åˆ¶
+syEndDraw proto
+; ç»˜åˆ¶ä½å›¾
+; bitmap: HBITMAP ä½å›¾id
+; i32X: sword ç»˜åˆ¶ä½ç½®x
+; i32Y: sword ç»˜åˆ¶ä½ç½®y
+; u32Width: dword ç»˜åˆ¶å®½åº¦
+; u32Height: dword ç»˜åˆ¶é«˜åº¦
+syDrawImage proto bitmap: HBITMAP, i32X: sword, i32Y: sword, u32Width: dword, u32Height: dword
+
 sySetMainWinId proc win: HWND
-	; ÉèÖÃÖ÷´°Ìåid£¬Ê¡µÃ´«À´´«È¥
+	; è®¾ç½®ä¸»çª—ä½“idï¼Œçœå¾—ä¼ æ¥ä¼ å»
 	mov eax, win
 	mov syMainWinId, eax
 
@@ -85,26 +116,26 @@ sySetMainWinId proc win: HWND
 sySetMainWinId endp
 
 syStartGame proc
-	mov syGameStarted, 1
+	mov syScene, SY_SCENE_LEVEL
 
 	ret
 syStartGame endp
 
-syResetGame proc
-	mov syGameStarted, 0
+sySelectLevel proc
+	mov syScene, SY_SCENE_SELECT_LEVEL
 	invoke syUpdateMap
 
 	ret
-syResetGame endp
+sySelectLevel endp
 
-syIsGameStarted proc
-	movzx eax, syGameStarted
+syEndGame proc
+	mov syScene, SY_SCENE_CLEAR
 
 	ret
-syIsGameStarted endp
+syEndGame endp
 
 syGetGridType proc u32Index: dword
-	; »ñÈ¡¸ñ×ÓÀàĞÍ
+	; è·å–æ ¼å­ç±»å‹
 	local oldebx: dword ; I hate Assembler
 
 	mov oldebx, ebx
@@ -113,17 +144,17 @@ syGetGridType proc u32Index: dword
 	mov eax, CurrentMapText[ebx * 4]
 
 	.if eax == SY_GRID_TYPE_PLAYER
-		; Íæ¼Ò
+		; ç©å®¶
 		mov eax, SY_GRID_TYPE_PLAYER_UP
 		add eax, syPlayerFace
 	.elseif eax == SY_GRID_TYPE_BOX
-		; Ïä×Ó
+		; ç®±å­
 		mov eax, OriginMapText[ebx * 4]
 		.if eax == SY_GRID_TYPE_TARGET
-			; ÔÚÄ¿±êµã
+			; åœ¨ç›®æ ‡ç‚¹
 			mov eax, SY_GRID_TYPE_BOX_TARGET
 		.else
-			; ²»ÔÚÄ¿±êµã
+			; ä¸åœ¨ç›®æ ‡ç‚¹
 			mov eax, SY_GRID_TYPE_BOX
 		.endif
 	.endif
@@ -141,7 +172,7 @@ sySetPlayerFace proc u32Face: dword
 sySetPlayerFace endp
 
 syUpdateMap proc
-	; ÎŞĞ§»¯µØÍ¼ÇøÓò
+	; æ— æ•ˆåŒ–åœ°å›¾åŒºåŸŸ
 	local rect: RECT
 
 	; [rect.left, rect.top, rect.right, rect.bottom] = [SY_MAPX, SY_MAPY, SY_MAPX + SY_MAP_SIZE, SY_MAPY + SY_MAP_SIZE]
@@ -162,7 +193,7 @@ syUpdateMap proc
 syUpdateMap endp
 
 syUpdateGrid proc u32GridInd: dword
-	; ÎŞĞ§»¯¸ñ×Ó
+	; æ— æ•ˆåŒ–æ ¼å­
 	local rect: RECT
 	local p: dword
 	
@@ -199,34 +230,34 @@ syUpdateGrid proc u32GridInd: dword
 syUpdateGrid endp
 
 syDrawMap proc devc: HDC
-	; »æÖÆµØÍ¼
-	local nextX: sword ; Ñ­»·ÖĞÏÂÒ»¸öx
-	local nextY: sword ; Ñ­»·ÖĞÏÂÒ»¸öy
-	local colInd: dword ; Ñ­»·ÖĞÁĞºÅ
+	; ç»˜åˆ¶åœ°å›¾
+	local nextX: sword ; å¾ªç¯ä¸­ä¸‹ä¸€ä¸ªx
+	local nextY: sword ; å¾ªç¯ä¸­ä¸‹ä¸€ä¸ªy
+	local colInd: dword ; å¾ªç¯ä¸­åˆ—å·
 	
-	; ±£´æÖ÷´°ÌåDC
+	; ä¿å­˜ä¸»çª—ä½“DC
 	mov eax, devc
 	mov syMainWinDC, eax
 	invoke syLoadImage
 	invoke syBeginDraw
 
-	.if !syGameStarted
-		; ÓÎÏ·Ã»ÓĞ¿ªÊ¼
-		; »æÖÆÖ÷½çÃæ
+	.if syScene == SY_SCENE_TITLE
+		; ä¸»ç•Œé¢åœºæ™¯
+		; ç»˜åˆ¶ä¸»ç•Œé¢
 
 		invoke syDrawImage, syTitleBitmap, SY_MAPX, SY_MAPY, SY_MAP_SIZE, SY_MAP_SIZE
-	.else
-		; ÓÎÏ·¿ªÊ¼ÁË
-		; »æÖÆËùÓĞ¸ñ×Ó£¨¿ÉÓÅ»¯£©
+	.elseif syScene == SY_SCENE_LEVEL
+		; å…³å¡åœºæ™¯
+		; ç»˜åˆ¶æ‰€æœ‰æ ¼å­ï¼ˆå¯ä¼˜åŒ–ï¼‰
 
-		; Ñ­»·»æÖÆ·½¸ñ
+		; å¾ªç¯ç»˜åˆ¶æ–¹æ ¼
 		mov nextX, SY_MAPX
 		mov nextY, SY_MAPY
 		mov colInd, 0
 		xor ebx, ebx
 		.while ebx < REC_LEN
 			invoke syGetGridType, ebx
-			; ¸Ã»­É¶»­É¶
+			; è¯¥ç”»å•¥ç”»å•¥
 			.if eax == SY_GRID_TYPE_WALL
 				invoke syDrawImage, syWallBitmap, nextX, nextY, SY_GRID_SIZE, SY_GRID_SIZE
 			.elseif eax == SY_GRID_TYPE_EMPTY
@@ -250,7 +281,7 @@ syDrawMap proc devc: HDC
 			add nextX, SY_GRID_SIZE
 			inc colInd
 			.if colInd == 10
-				; ÁĞºÅµ½10ÁË£¬¿ªÊ¼ÏÂÒ»ĞĞ
+				; åˆ—å·åˆ°10äº†ï¼Œå¼€å§‹ä¸‹ä¸€è¡Œ
 				mov nextX, SY_MAPX
 				add nextY, SY_GRID_SIZE
 				mov colInd, 0
@@ -258,6 +289,11 @@ syDrawMap proc devc: HDC
 
 			inc ebx
 		.endw
+	.elseif syScene == SY_SCENE_CLEAR
+		; é€šå…³åœºæ™¯
+		; ç»˜åˆ¶é€šå…³å›¾
+
+		invoke syDrawImage, syClearBitmap, SY_MAPX, SY_MAPY, SY_MAP_SIZE, SY_MAP_SIZE
 	.endif
 	
 	invoke syEndDraw
@@ -266,17 +302,17 @@ syDrawMap proc devc: HDC
 syDrawMap endp
 
 syLoadImage proc
-	; ¼ÓÔØÎ»Í¼
+	; åŠ è½½ä½å›¾
 
-	.if !syGameStarted
-		; ÓÎÏ·Ã»ÓĞ¿ªÊ¼
-		; ¼ÓÔØÖ÷½çÃæÎ»Í¼
+	.if syScene == SY_SCENE_TITLE
+		; ä¸»ç•Œé¢åœºæ™¯
+		; åŠ è½½ä¸»ç•Œé¢ä½å›¾
 
 		invoke LoadImage, NULL, offset syTitleFileName, IMAGE_BITMAP, SY_MAP_SIZE, SY_MAP_SIZE, LR_LOADFROMFILE
 		mov syTitleBitmap, eax
-	.else
-		; ÓÎÏ·¿ªÊ¼ÁË
-		; ¼ÓÔØ¸ñ×ÓÎ»Í¼
+	.elseif syScene == SY_SCENE_LEVEL
+		; å…³å¡åœºæ™¯
+		; åŠ è½½æ ¼å­ä½å›¾
 
 		invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, SY_GRID_SIZE, SY_GRID_SIZE, LR_LOADFROMFILE
 		mov syBoxBitmap, eax
@@ -296,13 +332,18 @@ syLoadImage proc
 		mov syTargetBitmap, eax
 		invoke LoadImage, NULL, offset syBoxTargetFileName, IMAGE_BITMAP, SY_GRID_SIZE, SY_GRID_SIZE, LR_LOADFROMFILE
 		mov syBoxTargetBitmap, eax
+	.elseif syScene == SY_SCENE_CLEAR
+		; é€šå…³åœºæ™¯
+		
+		invoke LoadImage, NULL, offset syClearFileName, IMAGE_BITMAP, SY_MAP_SIZE, SY_MAP_SIZE, LR_LOADFROMFILE
+		mov syClearBitmap, eax
 	.endif
 
 	ret
 syLoadImage endp
 
 syBeginDraw proc
-	; ´´½¨DC
+	; åˆ›å»ºDC
 	invoke CreateCompatibleDC, syMainWinDC
 	mov syMainBitmapDC, eax
 
@@ -310,23 +351,23 @@ syBeginDraw proc
 syBeginDraw endp
 
 syDrawImage proc bitmap: HBITMAP, i32X: sword, i32Y: sword, u32Width: dword, u32Height: dword
-	; Êä³öÎ»Í¼Êı¾İ
+	; è¾“å‡ºä½å›¾æ•°æ®
 	invoke SelectObject, syMainBitmapDC, bitmap
 	invoke BitBlt, syMainWinDC, i32X, i32Y, u32Width, u32Height, syMainBitmapDC, 0, 0, SRCCOPY
 	ret
 syDrawImage endp
 
 syEndDraw proc
-	; É¾³ıÎ»Í¼
+	; åˆ é™¤ä½å›¾
 
-	.if !syGameStarted
-		; ÓÎÏ·Ã»ÓĞ¿ªÊ¼
-		; É¾³ıÖ÷½çÃæÎ»Í¼
+	.if syScene == SY_SCENE_TITLE
+		; ä¸»ç•Œé¢åœºæ™¯
+		; åˆ é™¤ä¸»ç•Œé¢ä½å›¾
 
 		invoke DeleteObject, syTitleBitmap
-	.else
-		; ÓÎÏ·¿ªÊ¼ÁË
-		; É¾³ı¸ñ×ÓÎ»Í¼
+	.elseif syScene == SY_SCENE_LEVEL
+		; å…³å¡åœºæ™¯
+		; åˆ é™¤æ ¼å­ä½å›¾
 
 		invoke DeleteObject, syBoxBitmap
 		invoke DeleteObject, syPlayerUpBitmap
@@ -337,9 +378,14 @@ syEndDraw proc
 		invoke DeleteObject, syEmptyBitmap
 		invoke DeleteObject, syTargetBitmap
 		invoke DeleteObject, syBoxTargetBitmap
+	.elseif syScene == SY_SCENE_CLEAR
+		; é€šå…³åœºæ™¯
+		; åˆ é™¤é€šå…³å›¾ä½å›¾
+
+		invoke DeleteObject, syClearBitmap
 	.endif
 
-	; É¾³ıDC
+	; åˆ é™¤DC
 	invoke DeleteDC, syMainBitmapDC
 
 	ret
