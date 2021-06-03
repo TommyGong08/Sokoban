@@ -1,15 +1,22 @@
 .386
 .model flat, stdcall
 option casemap : none
-includelib msvcrt.lib
-include msvcrt.inc
-include kernel32.inc
-includelib kernel32.lib
+
 include sy.inc
 include sokoban.inc
+
 .data
 
-syBoxFileName byte "./pic/box.bmp", 0h
+levelFileName1 byte "./pic/level-1.bmp", 0h
+levelFileName2 byte "./pic/level-2.bmp", 0h
+levelFileName3 byte "./pic/level-3.bmp", 0h
+levelFileName4 byte "./pic/level-4.bmp", 0h
+levelFileName5 byte "./pic/level-5.bmp", 0h
+levelFileName6 byte "./pic/level-6.bmp", 0h
+levelFileName7 byte "./pic/level-7.bmp", 0h
+levelFileName8 byte "./pic/level-8.bmp", 0h
+levelFileName9 byte "./pic/level-9.bmp", 0h
+levelFileName10 byte "./pic/level-10.bmp", 0h
 
 hInstance		dd ?					; 主程序句柄
 hGuide			dd ?					; 引导文字句柄
@@ -25,15 +32,11 @@ hStage			dd ?					; 矩形外部句柄
 hDialogBrush    dd ?					; 对话框背景笔刷
 hStageBrush     dd ?					; 矩形外部背景笔刷
 
-iScore          dd		0				; 0
-cScore          db		MAX_LEN dup(0)	; 0
 currentLevel	dd		0				;记录当前关卡
 cLevel			dd		5 dup(0)
 currentStep		dd		0
 cStep			dd		5 dup(0)
 CurrPosition	dd		0				; 记录人的位置
-temp_for_initrec	dd	1018
-temp_ebx		dd		0
 OriginMapText	dd		MAX_LEN dup(0)	; 原始地图矩阵
 CurrentMapText  dd      MAX_LEN dup(0)	; 当前地图矩阵
 
@@ -43,11 +46,7 @@ ProgramName		db		"Game", 0		; 程序名称
 GameName		db		"sokoban", 0	; 程序名称
 Author			db		"MonsterGe", 0	; 作者
 cGuide          db		"Sokoban!", 0	; 引导信息
-cWin            db		"You win! Please click the button to restart", 0	; 成功信息
-cLose           db		"You lose! Please click the button to restart", 0	; 失败信息
-szFormat	    db	    "%d ", 0
 isWin			db		0				; 判断是否成功
-isLose			db		0				; 判断是否失败
 
 iprintf			db		"%d", 0ah, 0
 
@@ -61,6 +60,8 @@ cLevel7			db		"7", 0
 cLevel8			db		"8", 0
 cLevel9			db		"9", 0
 cLevel10		db		"10",0
+
+strZero byte "0", 0h
 
 hBLEVEL1		dd	?	;选关按钮句柄
 hBLEVEL2		dd	?
@@ -76,17 +77,6 @@ hBLEVEL10		dd	?
 hBLEVEL			dd	10	dup(0)
 syBLEVELBitmaps HBITMAP 10 dup(0)
 
-
-syBLEVEL1Bitmap HBITMAP ?
-syBLEVEL2Bitmap HBITMAP ?
-syBLEVEL3Bitmap HBITMAP ?
-syBLEVEL4Bitmap HBITMAP ?
-syBLEVEL5Bitmap HBITMAP ?
-syBLEVEL6Bitmap HBITMAP ?
-syBLEVEL7Bitmap HBITMAP ?
-syBLEVEL8Bitmap HBITMAP ?
-syBLEVEL9Bitmap HBITMAP ?
-syBLEVEL10Bitmap HBITMAP ?
 .code
 
 WinMain PROC hInst : dword, hPrevInst : dword, cmdLine : dword, cmdShow : dword
@@ -175,6 +165,57 @@ NotWin:
 	ret
 JudgeWin endp
 
+CreateLevelMap proc
+	; 创建当前关卡地图
+	
+	.if currentLevel == 0
+		invoke CreateMap1
+		invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel1
+	.elseif currentLevel == 1
+		invoke CreateMap2
+		invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel2
+	.elseif currentLevel == 2
+		invoke CreateMap3
+		invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel3
+	.elseif currentLevel == 3
+		invoke CreateMap4
+		invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel4
+	.elseif currentLevel == 4
+		invoke CreateMap5
+		invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel5
+	.elseif currentLevel == 5
+		invoke CreateMap6
+		invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel6
+	.elseif currentLevel == 6
+		invoke CreateMap7
+		invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel7
+	.elseif currentLevel == 7
+		invoke CreateMap8
+		invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel8
+	.elseif currentLevel == 8
+		invoke CreateMap9
+		invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel9
+	.elseif currentLevel == 9
+		invoke CreateMap10
+		invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel10
+	.else
+		; 通关了
+		invoke syEndGame
+		jmp UPDATE_MAP
+	.endif
+
+	invoke syStartGame
+UPDATE_MAP:
+	; 恢复步数为0，恢复获胜标志
+	and currentStep, 0
+	and isWin, 0
+	
+	invoke SendMessage, hStepText, WM_SETTEXT, 0, offset strZero
+	invoke syUpdateMap
+
+	ret
+CreateLevelMap endp
+
 Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 	local hdc : HDC
 	local ps : PAINTSTRUCT
@@ -216,183 +257,59 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
 				inc ebx
 			.endw
-			; 调用加载地图的函数
-			
-			.if currentLevel == 0
-			Map1:
-				invoke CreateMap1
-				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel1
-			.elseif currentLevel == 1
-			Map2:
-				invoke CreateMap2
-				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel2
-			 .elseif currentLevel == 2
-			Map3:
-				invoke CreateMap3
-				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel3
-			 .elseif currentLevel == 3
-			Map4:
-				invoke CreateMap4
-				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel4
-			 .elseif currentLevel == 4
-		    Map5:
-				invoke CreateMap5
-				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel5
-			 .elseif currentLevel == 5
-			Map6:
-				invoke CreateMap6
-				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel6
-			 .elseif currentLevel == 6
-			Map7:
-				invoke CreateMap7
-				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel7
-			 .elseif currentLevel == 7
-			Map8:
-				invoke CreateMap8
-				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel8
-			 .elseif currentLevel == 8
-			Map9:
-				invoke CreateMap9
-				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel9
-			 .elseif currentLevel == 9
-			Map10:
-				invoke CreateMap10
-				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel10
-			.endif
-			invoke syStartGame
-			invoke syUpdateMap
-			; 把当前步数调成0，每移动一步，当前步数加一
-			and currentStep, 0
-			and isWin, 0
-			and isLose, 0
-			invoke dwtoa, currentStep, offset cStep
-			invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
+			; 创建当前关卡地图
+			invoke CreateLevelMap
 		;重新进入选择关卡界面
 		.elseif eax == IDC_REMAKE
 			mov currentLevel, 0
 			mov currentStep, 0
 			mov isWin, 0
-			mov isLose, 0
 			; invoke syResetGame
 			; 画按钮
 			mov ebx, 0
 			.while ebx <= CurrBestLevel
-				invoke SendMessage, hBLEVEL[ebx * 4], BM_SETIMAGE, IMAGE_BITMAP, syBLEVEL1Bitmap
+				invoke SendMessage, hBLEVEL[ebx * 4], BM_SETIMAGE, IMAGE_BITMAP, syBLEVELBitmaps[ebx * 4]
 		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_SHOWNORMAL
 				inc ebx
 			.endw
 
+			invoke sySelectLevel
+
 		; 上方向键
 		.elseif eax == IDC_UP
-			.if (isWin == 0) && (isLose == 0)
-			invoke MoveUp
-			inc currentStep
-			invoke dwtoa, currentStep, offset cStep
-			invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
-			invoke JudgeWin
-				.if isWin == 1 && currentLevel == 1;赢了跳第二关
-					jmp Map2
-				.elseif isWin == 1 && currentLevel == 2; 赢了跳第三关
-					jmp Map3
-				.elseif isWin == 1 && currentLevel == 3; 赢了跳第四关
-					jmp Map4
-				.elseif isWin == 1 && currentLevel == 4; 赢了跳第五关
-					jmp Map5
-				.elseif isWin == 1 && currentLevel == 5; 赢了跳第六关
-					jmp Map6
-				.elseif isWin == 1 && currentLevel == 6; 赢了跳第七关
-					jmp Map7
-				.elseif isWin == 1 && currentLevel == 7; 赢了跳第八关
-					jmp Map8
-				.elseif isWin == 1 && currentLevel == 8; 赢了跳第九关
-					jmp Map9
-				.elseif isWin == 1 && currentLevel == 9; 赢了跳第十关
-					jmp Map10
-				.endif
+			.if !isWin
+				invoke MoveUp
+				inc currentStep
+				invoke dwtoa, currentStep, offset cStep
+				invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
+				invoke JudgeWin
 			.endif
 		; 下方向键
 		.elseif eax == IDC_DOWN
-			.if (isWin == 0) && (isLose == 0)
-			invoke MoveDown
-			inc currentStep
-			invoke dwtoa, currentStep, offset cStep
-			invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
-			invoke JudgeWin
-				.if isWin == 1 && currentLevel == 1; 赢了跳第二关
-					jmp Map2
-				.elseif isWin == 1 && currentLevel == 2; 赢了跳第三关
-					jmp Map3
-				.elseif isWin == 1 && currentLevel == 3; 赢了跳第四关
-					jmp Map4
-				.elseif isWin == 1 && currentLevel == 4; 赢了跳第五关
-					jmp Map5
-				.elseif isWin == 1 && currentLevel == 5; 赢了跳第六关
-					jmp Map6
-				.elseif isWin == 1 && currentLevel == 6; 赢了跳第七关
-					jmp Map7
-				.elseif isWin == 1 && currentLevel == 7; 赢了跳第八关
-					jmp Map8
-				.elseif isWin == 1 && currentLevel == 8; 赢了跳第九关
-					jmp Map9
-				.elseif isWin == 1 && currentLevel == 9; 赢了跳第十关
-					jmp Map10
-				.endif
+			.if !isWin
+				invoke MoveDown
+				inc currentStep
+				invoke dwtoa, currentStep, offset cStep
+				invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
+				invoke JudgeWin
 			.endif
 		; 左方向键
 		.elseif eax == IDC_LEFT
-			.if (isWin == 0) && (isLose == 0)
-			invoke MoveLeft
-			inc currentStep
-			invoke dwtoa, currentStep, offset cStep
-			invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
-			invoke JudgeWin
-				.if isWin == 1 && currentLevel == 1; 赢了跳第二关
-					jmp Map2
-				.elseif isWin == 1 && currentLevel == 2; 赢了跳第三关
-					jmp Map3
-				.elseif isWin == 1 && currentLevel == 3; 赢了跳第四关
-					jmp Map4
-				.elseif isWin == 1 && currentLevel == 4; 赢了跳第五关
-					jmp Map5
-				.elseif isWin == 1 && currentLevel == 5; 赢了跳第六关
-					jmp Map6
-				.elseif isWin == 1 && currentLevel == 6; 赢了跳第七关
-					jmp Map7
-				.elseif isWin == 1 && currentLevel == 7; 赢了跳第八关
-					jmp Map8
-				.elseif isWin == 1 && currentLevel == 8; 赢了跳第九关
-					jmp Map9
-				.elseif isWin == 1 && currentLevel == 9; 赢了跳第十关
-					jmp Map10
-				.endif
+			.if !isWin
+				invoke MoveLeft
+				inc currentStep
+				invoke dwtoa, currentStep, offset cStep
+				invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
+				invoke JudgeWin
 			.endif
 		; 右方向键
 		.elseif eax == IDC_RIGHT
-			.if (isWin == 0) && (isLose == 0)
-			invoke MoveRight
-			inc currentStep
-			invoke dwtoa, currentStep, offset cStep
-			invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
-			invoke JudgeWin
-				.if isWin == 1 && currentLevel == 1; 赢了跳第二关
-					jmp Map2
-				.elseif isWin == 1 && currentLevel == 2; 赢了跳第三关
-					jmp Map3
-				.elseif isWin == 1 && currentLevel == 3; 赢了跳第四关
-					jmp Map4
-				.elseif isWin == 1 && currentLevel == 4; 赢了跳第五关
-					jmp Map5
-				.elseif isWin == 1 && currentLevel == 5; 赢了跳第六关
-					jmp Map6
-				.elseif isWin == 1 && currentLevel == 6; 赢了跳第七关
-					jmp Map7
-				.elseif isWin == 1 && currentLevel == 7; 赢了跳第八关
-					jmp Map8
-				.elseif isWin == 1 && currentLevel == 8; 赢了跳第九关
-					jmp Map9
-				.elseif isWin == 1 && currentLevel == 9; 赢了跳第十关
-					jmp Map10
-				.endif
+			.if !isWin
+				invoke MoveRight
+				inc currentStep
+				invoke dwtoa, currentStep, offset cStep
+				invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
+				invoke JudgeWin
 			.endif
 		.elseif eax == IDC_BLEVEL1
 			; 先把按钮擦除，再跳转
@@ -402,7 +319,7 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
 				inc ebx
 			.endw
-			jmp Map1
+			invoke CreateLevelMap
 		.elseif eax == IDC_BLEVEL2
 			mov currentLevel, 1
 			mov ebx, 0
@@ -410,7 +327,7 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
 				inc ebx
 			.endw
-			jmp Map2
+			invoke CreateLevelMap
 		.elseif eax == IDC_BLEVEL3
 			mov currentLevel, 2
 			mov ebx, 0
@@ -418,7 +335,7 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
 				inc ebx
 			.endw
-			jmp Map3
+			invoke CreateLevelMap
 		.elseif eax == IDC_BLEVEL4
 			mov currentLevel, 3
 			mov ebx, 0
@@ -426,7 +343,7 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
 				inc ebx
 			.endw
-			jmp Map4
+			invoke CreateLevelMap
 		.elseif eax == IDC_BLEVEL5
 			mov currentLevel, 4
 			mov ebx, 0
@@ -434,7 +351,7 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
 				inc ebx
 			.endw
-			jmp Map5
+			invoke CreateLevelMap
 		.elseif eax == IDC_BLEVEL6
 			mov currentLevel, 5
 			mov ebx, 0
@@ -442,7 +359,7 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
 				inc ebx
 			.endw
-			jmp Map6
+			invoke CreateLevelMap
 		.elseif eax == IDC_BLEVEL7
 			mov currentLevel, 6
 			mov ebx, 0
@@ -450,7 +367,7 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
 				inc ebx
 			.endw
-			jmp Map7
+			invoke CreateLevelMap
 		.elseif eax == IDC_BLEVEL8
 			mov currentLevel, 7
 			mov ebx, 0
@@ -458,7 +375,7 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
 				inc ebx
 			.endw
-			jmp Map8
+			invoke CreateLevelMap
 		.elseif eax == IDC_BLEVEL9
 			mov currentLevel, 8
 			mov ebx, 0
@@ -466,7 +383,7 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
 				inc ebx
 			.endw
-			jmp Map9
+			invoke CreateLevelMap
 		.elseif eax == IDC_BLEVEL10
 			mov currentLevel, 9
 			mov ebx, 0
@@ -474,7 +391,12 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
 				inc ebx
 			.endw
-			jmp Map10
+			invoke CreateLevelMap
+		.endif
+
+		; 获胜处理
+		.if isWin == 1
+			invoke CreateLevelMap
 		.endif
 
 	.elseif uMsg == WM_ERASEBKGND
@@ -558,27 +480,25 @@ InitBrush proc
 	mov hDialogBrush, eax
 
 	; 加载选关按钮对应的位图文件
-	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
-	mov syBLEVEL1Bitmap, eax
-	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	invoke LoadImage, NULL, offset levelFileName1, IMAGE_BITMAP, 46, 58, LR_LOADFROMFILE
 	mov syBLEVELBitmaps[0], eax
-	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	invoke LoadImage, NULL, offset levelFileName2, IMAGE_BITMAP, 46, 58, LR_LOADFROMFILE
 	mov syBLEVELBitmaps[4], eax
-	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	invoke LoadImage, NULL, offset levelFileName3, IMAGE_BITMAP, 46, 58, LR_LOADFROMFILE
 	mov syBLEVELBitmaps[8], eax
-	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	invoke LoadImage, NULL, offset levelFileName4, IMAGE_BITMAP, 46, 58, LR_LOADFROMFILE
 	mov syBLEVELBitmaps[12], eax
-	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	invoke LoadImage, NULL, offset levelFileName5, IMAGE_BITMAP, 46, 58, LR_LOADFROMFILE
 	mov syBLEVELBitmaps[16], eax
-	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	invoke LoadImage, NULL, offset levelFileName6, IMAGE_BITMAP, 46, 58, LR_LOADFROMFILE
 	mov syBLEVELBitmaps[20], eax
-	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	invoke LoadImage, NULL, offset levelFileName7, IMAGE_BITMAP, 46, 58, LR_LOADFROMFILE
 	mov syBLEVELBitmaps[24], eax
-	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	invoke LoadImage, NULL, offset levelFileName8, IMAGE_BITMAP, 46, 58, LR_LOADFROMFILE
 	mov syBLEVELBitmaps[28], eax
-	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	invoke LoadImage, NULL, offset levelFileName9, IMAGE_BITMAP, 46, 58, LR_LOADFROMFILE
 	mov syBLEVELBitmaps[32], eax
-	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	invoke LoadImage, NULL, offset levelFileName10, IMAGE_BITMAP, 92, 58, LR_LOADFROMFILE
 	mov syBLEVELBitmaps[36], eax
 
 	ret
