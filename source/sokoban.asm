@@ -9,42 +9,45 @@ include sy.inc
 include sokoban.inc
 .data
 
-hInstance		dd ? ; 主程序句柄
-hGuide			dd ? ; 引导文字句柄
-hLevel			dd ? ; 关卡句柄
-hLevelText      dd ? ; 关卡文本句柄
-hStep			dd ? ; 步数句柄
-hStepText		dd ? ; 步数文本句柄
-hMenu			dd ? ; 菜单句柄
+syBoxFileName byte "./pic/box.bmp", 0h
 
-hIcon			dd ? ; 图标句柄
-hAcce			dd ? ; 热键句柄
-hStage			dd ? ; 矩形外部句柄
-hDialogBrush    dd ? ; 对话框背景笔刷
-hStageBrush     dd ? ; 矩形外部背景笔刷
+hInstance		dd ?					; 主程序句柄
+hGuide			dd ?					; 引导文字句柄
+hLevel			dd ?					; 关卡句柄
+hLevelText      dd ?					; 关卡文本句柄
+hStep			dd ?					; 步数句柄
+hStepText		dd ?					; 步数文本句柄
+hMenu			dd ?					; 菜单句柄
 
-iScore          dd		0; 0
-cScore          db		MAX_LEN dup(0); 0
-currentLevel	dd		0;记录当前关卡
+hIcon			dd ?					; 图标句柄
+hAcce			dd ?					; 热键句柄
+hStage			dd ?					; 矩形外部句柄
+hDialogBrush    dd ?					; 对话框背景笔刷
+hStageBrush     dd ?					; 矩形外部背景笔刷
+
+iScore          dd		0				; 0
+cScore          db		MAX_LEN dup(0)	; 0
+currentLevel	dd		0				;记录当前关卡
 cLevel			dd		5 dup(0)
 currentStep		dd		0
 cStep			dd		5 dup(0)
-CurrPosition	dd		0; 记录人的位置
+CurrPosition	dd		0				; 记录人的位置
 temp_for_initrec	dd	1018
 temp_ebx		dd		0
-temp_ecx		dd		0
-OriginMapText	dd		MAX_LEN dup(0); 原始地图矩阵
-CurrentMapText  dd      MAX_LEN dup(0); 当前地图矩阵
+OriginMapText	dd		MAX_LEN dup(0)	; 原始地图矩阵
+CurrentMapText  dd      MAX_LEN dup(0)	; 当前地图矩阵
 
-ProgramName		db		"Game", 0; 程序名称
-GameName		db		"sokoban", 0; 程序名称
-Author			db		"MonsterGe", 0; 作者
-cGuide          db		"Sokoban!", 0; 引导信息
-cWin            db		"You win! Please click the button to restart", 0; 成功信息
-cLose           db		"You lose! Please click the button to restart", 0; 失败信息
+CurrBestLevel	dd		0				; 当前最好成绩，用于选关
+
+ProgramName		db		"Game", 0		; 程序名称
+GameName		db		"sokoban", 0	; 程序名称
+Author			db		"MonsterGe", 0	; 作者
+cGuide          db		"Sokoban!", 0	; 引导信息
+cWin            db		"You win! Please click the button to restart", 0	; 成功信息
+cLose           db		"You lose! Please click the button to restart", 0	; 失败信息
 szFormat	    db	    "%d ", 0
-isWin			db		0; 判断是否成功
-isLose			db		0; 判断是否失败
+isWin			db		0				; 判断是否成功
+isLose			db		0				; 判断是否失败
 
 iprintf			db		"%d", 0ah, 0
 
@@ -59,6 +62,31 @@ cLevel8			db		"8", 0
 cLevel9			db		"9", 0
 cLevel10		db		"10",0
 
+hBLEVEL1		dd	?	;选关按钮句柄
+hBLEVEL2		dd	?
+hBLEVEL3		dd	?
+hBLEVEL4		dd	?
+hBLEVEL5		dd	?
+hBLEVEL6		dd	?
+hBLEVEL7		dd	?
+hBLEVEL8		dd	?
+hBLEVEL9		dd	?
+hBLEVEL10		dd	?
+
+hBLEVEL			dd	10	dup(0)
+syBLEVELBitmaps HBITMAP 10 dup(0)
+
+
+syBLEVEL1Bitmap HBITMAP ?
+syBLEVEL2Bitmap HBITMAP ?
+syBLEVEL3Bitmap HBITMAP ?
+syBLEVEL4Bitmap HBITMAP ?
+syBLEVEL5Bitmap HBITMAP ?
+syBLEVEL6Bitmap HBITMAP ?
+syBLEVEL7Bitmap HBITMAP ?
+syBLEVEL8Bitmap HBITMAP ?
+syBLEVEL9Bitmap HBITMAP ?
+syBLEVEL10Bitmap HBITMAP ?
 .code
 
 WinMain PROC hInst : dword, hPrevInst : dword, cmdLine : dword, cmdShow : dword
@@ -135,7 +163,12 @@ JudgeWin proc
 L1:		inc eax
 	.endw
 	mov isWin, 1 ;该局获胜
+	mov ebx, CurrBestLevel
+	.if currentLevel == ebx
+		inc CurrBestLevel
+	.endif
 	inc currentLevel ;关卡数+1
+	
 	ret
 NotWin:		
 	mov isWin, 0 
@@ -148,9 +181,9 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 
 	.if uMsg == WM_INITDIALOG
 		; 获取菜单的句柄并显示菜单
-		invoke LoadMenu, hInstance, IDR_MENU1
-		mov hMenu, eax
-		invoke SetMenu, hWnd, hMenu
+		; invoke LoadMenu, hInstance, IDR_MENU1
+		; mov hMenu, eax
+		; invoke SetMenu, hWnd, hMenu
 
 		; 获取快捷键的句柄并显示菜单
 		invoke LoadAccelerators, hInstance, IDR_ACCELERATOR2
@@ -159,6 +192,7 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 		; 初始化数组和矩阵
 		invoke InitRec, hWnd
 		invoke InitBrush
+
 
 	.elseif uMsg == WM_PAINT
 		; 绘制对话框背景
@@ -176,8 +210,16 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 		movzx eax, ax; 获得命令
 		; 开始新游戏，此时需要加载当前关卡对应的地图
 		.if eax == IDC_NEW || eax == ID_NEW
+			; 隐藏按钮
+			mov ebx, 0
+			.while ebx <= CurrBestLevel
+		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
+				inc ebx
+			.endw
 			; 调用加载地图的函数
+			
 			.if currentLevel == 0
+			Map1:
 				invoke CreateMap1
 				invoke SendMessage, hLevelText, WM_SETTEXT, 0, offset cLevel1
 			.elseif currentLevel == 1
@@ -225,13 +267,21 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 			and isLose, 0
 			invoke dwtoa, currentStep, offset cStep
 			invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
-		;重开
+		;重新进入选择关卡界面
 		.elseif eax == IDC_REMAKE
 			mov currentLevel, 0
 			mov currentStep, 0
 			mov isWin, 0
 			mov isLose, 0
-			invoke syResetGame
+			; invoke syResetGame
+			; 画按钮
+			mov ebx, 0
+			.while ebx <= CurrBestLevel
+				invoke SendMessage, hBLEVEL[ebx * 4], BM_SETIMAGE, IMAGE_BITMAP, syBLEVEL1Bitmap
+		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_SHOWNORMAL
+				inc ebx
+			.endw
+
 		; 上方向键
 		.elseif eax == IDC_UP
 			.if (isWin == 0) && (isLose == 0)
@@ -241,7 +291,6 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 			invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
 			invoke JudgeWin
 				.if isWin == 1 && currentLevel == 1;赢了跳第二关
-				 ;invoke MessageBox, hWnd, offset cLose, offset GameName, MB_OK
 					jmp Map2
 				.elseif isWin == 1 && currentLevel == 2; 赢了跳第三关
 					jmp Map3
@@ -270,7 +319,6 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 			invoke SendMessage, hStepText, WM_SETTEXT, 0, offset cStep
 			invoke JudgeWin
 				.if isWin == 1 && currentLevel == 1; 赢了跳第二关
-				 ;invoke MessageBox, hWnd, offset cLose, offset GameName, MB_OK
 					jmp Map2
 				.elseif isWin == 1 && currentLevel == 2; 赢了跳第三关
 					jmp Map3
@@ -346,7 +394,89 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 					jmp Map10
 				.endif
 			.endif
+		.elseif eax == IDC_BLEVEL1
+			; 先把按钮擦除，再跳转
+			mov currentLevel, 0 ;设置当前关卡的数字
+			mov ebx, 0
+			.while ebx <= CurrBestLevel
+		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
+				inc ebx
+			.endw
+			jmp Map1
+		.elseif eax == IDC_BLEVEL2
+			mov currentLevel, 1
+			mov ebx, 0
+			.while ebx <= CurrBestLevel
+		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
+				inc ebx
+			.endw
+			jmp Map2
+		.elseif eax == IDC_BLEVEL3
+			mov currentLevel, 2
+			mov ebx, 0
+			.while ebx <= CurrBestLevel
+		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
+				inc ebx
+			.endw
+			jmp Map3
+		.elseif eax == IDC_BLEVEL4
+			mov currentLevel, 3
+			mov ebx, 0
+			.while ebx <= CurrBestLevel
+		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
+				inc ebx
+			.endw
+			jmp Map4
+		.elseif eax == IDC_BLEVEL5
+			mov currentLevel, 4
+			mov ebx, 0
+			.while ebx <= CurrBestLevel
+		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
+				inc ebx
+			.endw
+			jmp Map5
+		.elseif eax == IDC_BLEVEL6
+			mov currentLevel, 5
+			mov ebx, 0
+			.while ebx <= CurrBestLevel
+		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
+				inc ebx
+			.endw
+			jmp Map6
+		.elseif eax == IDC_BLEVEL7
+			mov currentLevel, 6
+			mov ebx, 0
+			.while ebx <= CurrBestLevel
+		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
+				inc ebx
+			.endw
+			jmp Map7
+		.elseif eax == IDC_BLEVEL8
+			mov currentLevel, 7
+			mov ebx, 0
+			.while ebx <= CurrBestLevel
+		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
+				inc ebx
+			.endw
+			jmp Map8
+		.elseif eax == IDC_BLEVEL9
+			mov currentLevel, 8
+			mov ebx, 0
+			.while ebx <= CurrBestLevel
+		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
+				inc ebx
+			.endw
+			jmp Map9
+		.elseif eax == IDC_BLEVEL10
+			mov currentLevel, 9
+			mov ebx, 0
+			.while ebx <= CurrBestLevel
+		        invoke ShowWindow, hBLEVEL[ebx * 4], SW_HIDE
+				inc ebx
+			.endw
+			jmp Map10
 		.endif
+
 	.elseif uMsg == WM_ERASEBKGND
 		ret
 	.elseif uMsg == WM_CLOSE
@@ -379,6 +509,46 @@ InitRec proc hWnd : dword
 	invoke GetDlgItem, hWnd, IDC_LEVELTEXT
 	mov hLevelText, eax
 
+	invoke GetDlgItem, hWnd, IDC_BLEVEL1
+	mov hBLEVEL1, eax
+	mov hBLEVEL[0], eax
+
+	invoke GetDlgItem, hWnd, IDC_BLEVEL2
+	mov hBLEVEL2, eax
+	mov hBLEVEL[4], eax
+
+	invoke GetDlgItem, hWnd, IDC_BLEVEL3
+	mov hBLEVEL3, eax
+	mov hBLEVEL[8], eax
+
+	invoke GetDlgItem, hWnd, IDC_BLEVEL4
+	mov hBLEVEL4, eax
+	mov hBLEVEL[12], eax
+
+	invoke GetDlgItem, hWnd, IDC_BLEVEL5
+	mov hBLEVEL5, eax
+	mov hBLEVEL[16], eax
+
+	invoke GetDlgItem, hWnd, IDC_BLEVEL6
+	mov hBLEVEL6, eax
+	mov hBLEVEL[20], eax
+
+	invoke GetDlgItem, hWnd, IDC_BLEVEL7
+	mov hBLEVEL7, eax
+	mov hBLEVEL[24], eax
+
+	invoke GetDlgItem, hWnd, IDC_BLEVEL8
+	mov hBLEVEL8, eax
+	mov hBLEVEL[28], eax
+
+	invoke GetDlgItem, hWnd, IDC_BLEVEL9
+	mov hBLEVEL9, eax
+	mov hBLEVEL[32], eax
+
+	invoke GetDlgItem, hWnd, IDC_BLEVEL10
+	mov hBLEVEL10, eax
+	mov hBLEVEL[36], eax
+
 	ret
 	InitRec endp
 
@@ -386,6 +556,30 @@ InitBrush proc
 	; 创建不同种类的画刷颜色
 	invoke CreateSolidBrush, DialogBack
 	mov hDialogBrush, eax
+
+	; 加载选关按钮对应的位图文件
+	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	mov syBLEVEL1Bitmap, eax
+	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	mov syBLEVELBitmaps[0], eax
+	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	mov syBLEVELBitmaps[4], eax
+	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	mov syBLEVELBitmaps[8], eax
+	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	mov syBLEVELBitmaps[12], eax
+	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	mov syBLEVELBitmaps[16], eax
+	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	mov syBLEVELBitmaps[20], eax
+	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	mov syBLEVELBitmaps[24], eax
+	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	mov syBLEVELBitmaps[28], eax
+	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	mov syBLEVELBitmaps[32], eax
+	invoke LoadImage, NULL, offset syBoxFileName, IMAGE_BITMAP, 48, 48, LR_LOADFROMFILE
+	mov syBLEVELBitmaps[36], eax
 
 	ret
 InitBrush endp
