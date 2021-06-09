@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// ‰∏≠Êñá(ÁÆÄ‰ΩìÔºå‰∏≠ÂõΩ) resources
+// ÷–Œƒ(ºÚÃÂ£¨÷–π˙) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
@@ -50,21 +50,21 @@ END
 // Dialog
 //
 
-IDD_DIALOG1 DIALOGEX 0, 0, 400, 407
+IDD_DIALOG1 DIALOGEX 0, 0, 383, 409
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Êé®ÁÆ±Â≠ê"
+CAPTION "Õ∆œ‰◊”"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    PUSHBUTTON      "ÈÄâÊã©ÂÖ≥Âç°",IDC_REMAKE,171,6,71,32
-    CTEXT           "ÂÖ≥Âç°",IDC_LEVEL,24,8,48,16,SS_CENTERIMAGE
-    CTEXT           "Ê≠•Êï∞",IDC_STEP,93,8,48,16,SS_CENTERIMAGE
+    PUSHBUTTON      "—°‘Òπÿø®",IDC_REMAKE,171,6,71,32
+    CTEXT           "πÿø®",IDC_LEVEL,24,8,48,16,SS_CENTERIMAGE
+    CTEXT           "≤Ω ˝",IDC_STEP,93,8,48,16,SS_CENTERIMAGE
     CTEXT           "0",IDC_STEPTEXT,93,24,48,16,SS_CENTERIMAGE
     CTEXT           "0",IDC_LEVELTEXT,24,24,48,16,SS_CENTERIMAGE
     PUSHBUTTON      "UP",IDC_UP,0,393,40,14,NOT WS_VISIBLE
     PUSHBUTTON      "DOWN",IDC_DOWN,120,393,40,14,NOT WS_VISIBLE
     PUSHBUTTON      "LEFT",IDC_LEFT,240,393,40,14,NOT WS_VISIBLE
-    PUSHBUTTON      "RIGHT",IDC_RIGHT,360,393,40,14,NOT WS_VISIBLE
-    PUSHBUTTON      "ÂºÄÂßãÊ∏∏Êàè",IDC_NEW,275,6,70,32
+    PUSHBUTTON      "RIGHT",IDC_RIGHT,336,390,40,14,NOT WS_VISIBLE
+    PUSHBUTTON      "ø™ º”Œœ∑",IDC_NEW,275,6,70,32
     PUSHBUTTON      "Button1",IDC_BLEVEL1,42,108,50,30,BS_BITMAP | NOT WS_VISIBLE
     PUSHBUTTON      "Button2",IDC_BLEVEL2,108,108,50,30,BS_BITMAP | NOT WS_VISIBLE
     PUSHBUTTON      "Button2",IDC_BLEVEL3,174,108,50,30,BS_BITMAP | NOT WS_VISIBLE
@@ -89,12 +89,12 @@ BEGIN
     IDD_DIALOG1, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 393
+        RIGHTMARGIN, 376
         VERTGUIDE, 20
         VERTGUIDE, 60
         VERTGUIDE, 72
         TOPMARGIN, 7
-        BOTTOMMARGIN, 400
+        BOTTOMMARGIN, 402
         HORZGUIDE, 20
         HORZGUIDE, 60
     END
@@ -120,15 +120,15 @@ END
 
 IDR_MENU1 MENU
 BEGIN
-    POPUP "ÊéßÂà∂(&C)"
+    POPUP "øÿ÷∆(&C)"
     BEGIN
-        MENUITEM "Êñ∞Ê∏∏Êàè(&N)",                     ID_NEW
-        MENUITEM "ÈÄÄÂá∫(&E)",                      ID_EXIT
+        MENUITEM "–¬”Œœ∑(&N)",                     ID_NEW
+        MENUITEM "ÕÀ≥ˆ(&E)",                      ID_EXIT
     END
-    POPUP "Â∏ÆÂä©(H)"
+    POPUP "∞Ô÷˙(H)"
     BEGIN
-        MENUITEM "ÂÖ≥‰∫é(&A)",                      ID_ABOUT
-        MENUITEM "‰ΩúËÄÖ(&W)",                      ID_WRITER
+        MENUITEM "πÿ”⁄(&A)",                      ID_ABOUT
+        MENUITEM "◊˜’ﬂ(&W)",                      ID_WRITER
     END
 END
 
@@ -151,7 +151,7 @@ BEGIN
     VK_SPACE,       IDC_REMAKE,             VIRTKEY, NOINVERT
 END
 
-#endif    // ‰∏≠Êñá(ÁÆÄ‰ΩìÔºå‰∏≠ÂõΩ) resources
+#endif    // ÷–Œƒ(ºÚÃÂ£¨÷–π˙) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

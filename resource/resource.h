@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ ç”Ÿæˆçš„åŒ…å«æ–‡ä»¶ã€‚
-// ä¾› sokoban.rc ä½¿ç”¨
+// Microsoft Visual C++ Éú³ÉµÄ°üº¬ÎÄ¼ş¡£
+// ¹© sokoban.rc Ê¹ÓÃ
 //
 #define IDR_ACCELERATOR1                101
 #define IDD_DIALOG1                     102
@@ -29,7 +29,6 @@
 #define IDC_BLEVEL8                     1137
 #define IDC_BLEVEL9                     1138
 #define IDC_BLEVEL10                    1139
-
 #define ID_40004                        40004
 #define ID_40005                        40005
 #define ID_40006                        40006

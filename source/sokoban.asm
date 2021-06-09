@@ -40,11 +40,11 @@ CurrPosition	dd		0				; 记录人的位置
 OriginMapText	dd		MAX_LEN dup(0)	; 原始地图矩阵
 CurrentMapText  dd      MAX_LEN dup(0)	; 当前地图矩阵
 
-CurrBestLevel	dd		0				; 当前最好成绩，用于选关
+CurrBestLevel	dd		10				; 当前最好成绩，用于选关
 
 ProgramName		db		"Game", 0		; 程序名称
 GameName		db		"sokoban", 0	; 程序名称
-Author			db		"MonsterGe", 0	; 作者
+Author			db		"Ge, Gong, Wang, Xu", 0	; 作者
 cGuide          db		"Sokoban!", 0	; 引导信息
 isWin			db		0				; 判断是否成功
 
@@ -417,7 +417,7 @@ Calculate proc hWnd : dword, uMsg : UINT, wParam : WPARAM, lParam : LPARAM
 Calculate endp
 
 InitRec proc hWnd : dword
-	; 调用GetDlgItem函数获得方块的句柄
+	; 调用GetDlgItem函数获得句柄
 	; 包括整体背景的句柄等
 	invoke GetDlgItem, hWnd, IDC_STEP
 	mov hStep, eax
